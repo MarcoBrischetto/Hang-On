@@ -15,6 +15,7 @@ imagen_t *imagen_leer_pgm();
 void imagen_imprimir_pgm(const imagen_t *imagen);
 void imagen_pegar(imagen_t *destino, const imagen_t *origen, int x, int y);
 imagen_t *imagen_escalar(const imagen_t *origen, size_t ancho_destino, size_t alto_destino);
+imagen_t *imagen_reflejar(imagen_t *im);
 void imagen_pegar_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]);
 void imagen_escribir_ppm(const imagen_t *im, FILE *fo, void (*pixel_a_rgb)(pixel_t, uint8_t *, uint8_t *, uint8_t *));
 bool imagen_guardar_ppm(const imagen_t *im, const char *fn, void (*pixel_a_rgb)(pixel_t, uint8_t *, uint8_t *, uint8_t *));

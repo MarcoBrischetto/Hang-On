@@ -172,38 +172,34 @@ bool imagen_set_pixel(const imagen_t *im, size_t x, size_t y, pixel_t p){
     return true;
 }
 
+/*
+	funcion: reflejar imagen
+	recibe una imagen y devuelve una imagen nueva con su reflejo
+*/
+
+imagen_t *imagen_reflejar(imagen_t *im){
+
+	imagen_t *reflejada = imagen_generar(im->ancho, im->alto, 0);
+	if(reflejada == NULL) return NULL;
+
+	for(size_t f = 0; f < reflejada->alto; f++){
+		for(size_t c = 0; c < reflejada->ancho; c++){
+			reflejada->pixeles[f][c] = im->pixeles[f][im->ancho - c - 1]; //-1 para no pisar fuera de memoria
+		}
+	}
+
+	//imagen_destruir(im);
+
+	return reflejada;
+
+}
+
 void imagen_pegar_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]){
 
-	size_t f_inicial = 0;
-	size_t c_inicial = 0;
-	size_t ancho_origen = origen->ancho;
-	size_t alto_origen = origen->alto;
-
-	//En caso de que se vaya de rango hacia la "derecha" y/o hacia "abajo",
-	//limito las dimensiones de la imagen origen
-	if(x + ancho_origen > destino->ancho){
-		ancho_origen = destino->ancho - x;
-	}
-
-	if(y + alto_origen > destino->alto){
-		alto_origen = destino->alto - y;
-	}
-
-	//En caso de que se vaya de rango hacia la "izquieda" y/o hacia "arriba"
-	//modifico desde donde se empieza a pegar la imagen
-	if(x < 0){
-		c_inicial = -x;
-	}
-
-	if(y < 0){
-		f_inicial = -y;
-	}
-
-	for(size_t f = f_inicial; f < alto_origen; f++){
-		for(size_t c = c_inicial; c < ancho_origen; c++){
+	for(int f = y >= 0 ? 0 : -y; f < origen->alto && f + y < destino->alto; f++)
+		for(int c = x >= 0 ? 0 : -x; c < origen->ancho && c + x < destino->ancho; c++){
 			if(origen->pixeles[f][c] != 0)
 				destino->pixeles[f+y][c+x] = paleta[origen->pixeles[f][c]];
-		}
 	}
 
 }
@@ -241,17 +237,16 @@ bool imagen_guardar_ppm(const imagen_t *im, const char *fn, void (*pixel_a_rgb)(
 	funcion: imagen_a_textura
 	recibe una imagen im y la vuelca en un vector v segun la convencion de SDL2
 */
-void imagen_a_textura(const imagen_t *im, uint16_t *v){
-/*
-	for(size_t f = 0; f < im->alto; f++)
-            for(size_t c = 0; c < im->ancho; c++)
-                v[f * im->ancho + c] = imagen_get_pixel(im, c, f);
-*/
 
+void imagen_a_textura(const imagen_t *im, uint16_t *v){
 
 	for(size_t f = 0; f < im->alto; f++){
 		memcpy(v + (f * im->ancho), im->pixeles[f], im->ancho * sizeof(pixel_t));
 	}
 
 }
+
+
+
+
 

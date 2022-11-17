@@ -1,7 +1,6 @@
 #include "ruta.h"
 #include "stdio.h"
 
-/*
 const struct figura_en_ruta figuras_en_ruta[] = {
     {ARBOL, 38, -300, 0},
     {ARBOL, 38, 300, 1},
@@ -17,7 +16,7 @@ const struct figura_en_ruta figuras_en_ruta[] = {
     {BELL, 34, 300, 0},
     {FORUM, 34, -300, 0},
 };
-*/
+
 
 const struct ruta ruta[4200 + 70] = {
     {0.0000000, 9999},
@@ -4291,14 +4290,50 @@ const struct ruta ruta[4200 + 70] = {
     {0.0000000, 9999},
     {0.0000000, 9999},
 };
+                        //[4][4]
+const pixel_t colores_ruta[][16] = {
+    // columnas: Asfalto, líneas laterales, color lateral, franja del medio
+   /*
+    {0x666, 0xfff, 0xb00, 0xfff},
+    {0x666, 0xfff, 0xfff, 0xfff},
+    {0x566, 0xfff, 0xb00, 0x566},
+    {0x566, 0xfff, 0xfff, 0x566}
+    */
+
+    //columnas(ignorando 0): Asfalto suferior, Asfalto inferior, Linea lateral, color lateral superior, color lateral inferior, franja medio
+    {0, 0, 0, 0, 0x666, 0x666, 0, 0xfff, 0, 0, 0 , 0, 0xb00, 0xb00, 0, 0xfff},
+    {0, 0, 0, 0, 0x666, 0x666, 0, 0xfff, 0, 0, 0 , 0, 0xfff, 0xfff, 0, 0xfff},
+    {0, 0, 0, 0, 0x566, 0x566, 0, 0xfff, 0, 0, 0 , 0, 0xb00, 0xb00, 0, 0x566},
+    {0, 0, 0, 0, 0x566, 0x566, 0, 0xfff, 0, 0, 0 , 0, 0xfff, 0xfff, 0, 0x566}
+};
+
+/*
+    funcion: ruta_transparentar
+    elimina los bits no deseados de la izquierda de la ruta
+*/
+
+static void ruta_transparentar(imagen_t *ruta){
+
+    for(size_t f = 0; f < imagen_get_alto(ruta); f++){
+
+        for(size_t c = 0; c < imagen_get_ancho(ruta); c++){
+            if(imagen_get_pixel(ruta, c, f) != 0xf){
+                break;
+            }
+            imagen_set_pixel(ruta, c, f, 0);
+        }
+    }
+
+}
 
 /*
     funcion: ruta_cargar_rom
     devuelve la imagen de la ruta contenida en la rom
+    obs: ver si se puede leer de a mas bytes
 */
 imagen_t *ruta_cargar_rom(){
 
-    FILE *rom = fopen( ARCHIVO_ROM_RUTA, "rb");
+    FILE *rom = fopen(ARCHIVO_ROM_RUTA, "rb");
     if(rom == NULL) return NULL;
 
     imagen_t *ruta = imagen_generar(512, 128, 0);
@@ -4307,7 +4342,7 @@ imagen_t *ruta_cargar_rom(){
         return NULL;
     }
 
-    uint8_t byte;
+    uint8_t byte, a = 0, b = 0, e = 0, d = 0;
     pixel_t pixel;
 
     for(size_t f = 0; f < 128; f++){
@@ -4317,13 +4352,82 @@ imagen_t *ruta_cargar_rom(){
             fread(&byte, 1, 1, rom);
 
             for(size_t i = 0; i < 8; i++){
-                pixel = pixel3_crear((byte >> (7 - c)) &0x1, 0, 0);
-                imagen_set_pixel(ruta, c, f, pixel);
+
+                d = (byte >> (7 - i)) & 0x1;
+
+                pixel = pixel4_crear( a, b, e, d);
+
+                imagen_set_pixel(ruta, c*8 + i, f, pixel);
+            }
+        }
+    }
+
+    for(size_t f = 0; f < 128; f++){
+
+        for(size_t c = 0; c < 512/8; c++){
+
+            fread(&byte, 1, 1, rom);
+
+            for(size_t i = 0; i < 8; i++){
+
+                pixel = imagen_get_pixel(ruta, c*8 + i, f);
+
+                pixel4_a_abcd(pixel, &a, &b, &e, &d);
+
+                e = (byte >> (7 - i)) & 0x1;
+
+                pixel = pixel4_crear( a, b, e, d);
+
+                imagen_set_pixel(ruta, c*8 + i, f, pixel);
+            }
+        }
+    }
+
+    for(size_t f = 0; f < 128; f++){
+
+        for(size_t c = 0; c < 512/8; c++){
+
+            fread(&byte, 1, 1, rom);
+
+            for(size_t i = 0; i < 8; i++){
+
+                pixel = imagen_get_pixel(ruta, c*8 + i, f);
+
+                pixel4_a_abcd(pixel, &a, &b, &e, &d);
+
+                b = (byte >> (7 - i)) & 0x1;
+
+                pixel = pixel4_crear( a, b, e, d);
+
+                imagen_set_pixel(ruta, c*8 + i, f, pixel);
+            }
+        }
+    }
+
+    for(size_t f = 0; f < 128; f++){
+
+        for(size_t c = 0; c < 512/8; c++){
+
+            fread(&byte, 1, 1, rom);
+
+            for(size_t i = 0; i < 8; i++){
+
+                pixel = imagen_get_pixel(ruta, c*8 + i, f);
+
+                pixel4_a_abcd(pixel, &a, &b, &e, &d);
+
+                a = (byte >> (7 - i)) & 0x1;
+
+                pixel = pixel4_crear( a, b, e, d);
+
+                imagen_set_pixel(ruta, c*8 + i, f, pixel);
             }
         }
     }
 
     fclose(rom);
+
+    ruta_transparentar(ruta);
 
     return ruta;
 

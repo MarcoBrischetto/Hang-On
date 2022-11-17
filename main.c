@@ -6,13 +6,10 @@
 #include "ruta.h"
 #include "paleta.h"
 #include "fondo.h"
-
-bool leer_teselas(imagen_t *teselas[]);
-imagen_t *generar_mosaico(imagen_t *teselas[], const pixel_t paleta[][8], size_t filas, size_t columnas, const uint16_t mosaico_teselas[filas][columnas], const uint8_t mosaico_paletas[filas][columnas]);
-bool cargar_teselas(imagen_t *teselas[CANTIDAD_TESELAS]);
-void liberar_teselas(imagen_t *teselas[CANTIDAD_TESELAS]);
-imagen_t *generar_pasto();
-
+#include "pixel.h"
+#include "figura.h"
+#include "teselas.h"
+#include "moto.h"
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -33,10 +30,29 @@ int main() {
     // BEGIN código del alumno
     double x = -10;
     bool mover = false;
+    int intensidad = 0;
 
+
+    uint16_t rom[CANTIDAD_VALORES_ROMS];
+    if(cargar_figuras_rom(rom) == false) return 1;
+
+    //imagen_t *moto1 = obtener_figura(rom, 532, 36, 73);
+    moto_t *moto = moto_crear();
+    if(moto == NULL) return 1;
+
+    /*
+    for(size_t i = 0; i < CANTIDAD_VALORES_ROMS; i++)
+        printf("%x\n ", rom[i]);
+
+    return 0;
+*/
     imagen_t *teselas[CANTIDAD_TESELAS];
+
     cargar_teselas(teselas);
 
+    //imagen_t *ruta = ruta_cargar_rom();
+
+    //imagen_guardar_ppm(ruta, "prueba.txt", pixel3_a_rgb);
 
     // END código del alumno
 
@@ -56,6 +72,7 @@ int main() {
                     case SDLK_DOWN:
                         break;
                     case SDLK_RIGHT:
+                        moto_set_der(moto, true);
                         break;
                     case SDLK_LEFT:
                         break;
@@ -71,6 +88,7 @@ int main() {
                     case SDLK_DOWN:
                         break;
                     case SDLK_RIGHT:
+                        moto_set_der(moto, false);
                         break;
                     case SDLK_LEFT:
                         break;
@@ -90,6 +108,17 @@ int main() {
         if(x > 320)
             x = -10;
 
+
+        if(moto_get_der(moto))intensidad++;
+
+        if(!moto_get_der(moto))intensidad--;
+
+        if(intensidad > 1) intensidad = 1;
+
+        if(intensidad < 0) intensidad = 0;
+
+        moto_set_intensidad(moto, intensidad);
+
         /*generacion de fondo*/
 
         imagen_t *fondo1 = generar_mosaico(teselas, paleta_3, FONDO1_FILAS, FONDO1_COLUMNAS, fondo1_mosaico, fondo1_paleta);
@@ -106,9 +135,22 @@ int main() {
         imagen_pegar(cuadro, pasto, 0, 128);
         imagen_destruir(pasto);
 
-        imagen_t *cuadrado = imagen_generar(10, 10, 0x0f0);
-        imagen_pegar(cuadro, cuadrado, x, (224 - 10) / 2);
-        imagen_destruir(cuadrado);
+        //imagen_pegar_con_paleta(cuadro, ruta, -300, 0, colores_ruta[0]);
+
+        /*moto*/
+
+        //imagen_t *moto1 = obtener_figura(rom, 17215, 60, 54);
+        imagen_t *moto1 = moto_get_figura(moto, rom);
+        imagen_pegar_con_paleta(cuadro, moto1, 100, 0, paleta_4[1]);
+        imagen_destruir(moto1);
+
+        //imagen_pegar_con_paleta(cuadro, espejado, 50, 100, paleta_4[2]);
+        //imagen_pegar(cuadro, ruta, -300, 0);
+
+
+        //imagen_t *cuadrado = imagen_generar(10, 10, 0x0f0);
+        //imagen_pegar(cuadro, cuadrado, x, (224 - 10) / 2);
+        //imagen_destruir(cuadrado);
 
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
@@ -144,6 +186,10 @@ int main() {
 
     // BEGIN código del alumno
     // No tengo nada que destruir.
+    moto_destruir(moto);
+    //imagen_destruir(espejado);
+    //imagen_destruir(ruta);
+    liberar_teselas(teselas);
     // END código del alumno
 
     SDL_DestroyRenderer(renderer);
@@ -152,157 +198,3 @@ int main() {
     SDL_Quit();
     return 0;
 }
-
-bool leer_teselas(imagen_t *teselas[]){
-
-    uint8_t linea;
-    pixel_t pixel;
-    uint8_t r, g, b;
-
-    FILE *rom = fopen(ARCHIVO_ROM_R, "rb");
-
-    if(rom == NULL) return false;
-
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
-        for(size_t f = 0; f < ALTO_TESELA; f++){
-
-            fread(&linea, 1, 1, rom); //leo una tesela
-
-            for(size_t c = 0; c < ALTO_TESELA; c++){
-
-                //creo un pixel en base a lo leido usando manejo de bits
-                pixel = pixel3_crear((linea >> (SHIFT_TESELA - c)) &0x1, 0, 0);
-
-                imagen_set_pixel(teselas[i], c, f, pixel);
-
-            }
-        }
-    }
-
-    if(fclose(rom)) return false;
-
-    rom = fopen(ARCHIVO_ROM_G, "rb");
-
-    if(rom == NULL) return false;
-
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
-        for(size_t f = 0; f < ALTO_TESELA; f++){
-
-            fread(&linea, 1, 1, rom);
-
-            for(size_t c = 0; c < ALTO_TESELA; c++){
-
-                pixel = imagen_get_pixel(teselas[i], c, f);
-
-                pixel3_a_rgb(pixel ,&r, &g, &b);
-
-                pixel = pixel3_crear(r, (linea >> (SHIFT_TESELA - c)) &0x1, b);
-
-                imagen_set_pixel(teselas[i], c, f, pixel);
-
-            }
-        }
-    }
-
-    if(fclose(rom)) return false;
-
-    rom = fopen(ARCHIVO_ROM_B, "rb");
-
-    if(rom == NULL) return false;
-
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
-        for(size_t f = 0; f < ALTO_TESELA; f++){
-
-            fread(&linea, 1, 1, rom);
-
-            for(size_t c = 0; c < ALTO_TESELA; c++){
-
-                pixel = imagen_get_pixel(teselas[i], c, f);
-
-                pixel3_a_rgb(pixel ,&r, &g, &b);
-
-                pixel = pixel3_crear(r, g, (linea >> (SHIFT_TESELA - c)) &0x1);
-
-                imagen_set_pixel(teselas[i], c, f, pixel);
-
-            }
-        }
-    }
-
-    if(fclose(rom)) return false;
-
-    return true;
-}
-
-imagen_t *generar_mosaico(imagen_t *teselas[], const pixel_t paleta[][8], size_t filas, size_t columnas, const uint16_t mosaico_teselas[filas][columnas], const uint8_t mosaico_paletas[filas][columnas]){
-
-    imagen_t *img = imagen_generar(columnas*ANCHO_TESELA, filas*ALTO_TESELA, 0);
-
-    if(img == NULL) return NULL;
-
-    for(size_t f = 0; f < filas; f++){
-        for(size_t c = 0; c < columnas; c++){
-
-            imagen_pegar_con_paleta(img, teselas[mosaico_teselas[f][c]], c*ANCHO_TESELA, f*ALTO_TESELA, paleta[mosaico_paletas[f][c]]);
-
-        }
-    }
-
-    return img;
-}
-
-/*
-    funcion: cargar_teselas
-    Carga en el array teselas, las teselas de la rom
-*/
-
-bool cargar_teselas(imagen_t *teselas[CANTIDAD_TESELAS]){
-
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
-        teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
-
-    if(! leer_teselas(teselas)) {
-
-        for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
-            imagen_destruir(teselas[i]);
-
-        return false;
-    }
-
-    return true;
-
-}
-
-/*
-    funcion: liberar_teselas
-    libera la memoria asociada al array de las teselas
-*/
-
-void liberar_teselas(imagen_t *teselas[CANTIDAD_TESELAS]){
-
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
-            imagen_destruir(teselas[i]);
-
-}
-
-/*
-    funcion: generar_pasto
-    Devuelve una imagen del pasto de la parte inferior de la imagen
-*/
-
-imagen_t *generar_pasto(){
-
-    pixel_t colores_pasto[10] = {0x089, 0x099, 0x099, 0x0a9, 0x0a9, 0x0a9, 0x0b9, 0x0b9, 0x0c9, 0x0c9};
-
-    imagen_t *pasto = imagen_generar(1, 96, pixel12_crear(0, 13, 9));
-
-    for(size_t i = 0; i < 10; i++)
-        imagen_set_pixel(pasto, 0, i, colores_pasto[i]);
-
-    imagen_t *pasto_estirado = imagen_escalar(pasto, 320, 96);
-
-    imagen_destruir(pasto);
-
-    return pasto_estirado;
-}
-
