@@ -1,8 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-
-
 #define VENTANA_ANCHO 800
 #define VENTANA_ALTO 600
 /*

@@ -36,7 +36,8 @@ int main() {
     uint16_t rom[CANTIDAD_VALORES_ROMS];
     if(cargar_figuras_rom(rom) == false) return 1;
 
-    //imagen_t *moto1 = obtener_figura(rom, 532, 36, 73);
+    //imagen_t *moto1 = obtener_figura(rom, 5670, 36, 70);
+
     moto_t *moto = moto_crear();
     if(moto == NULL) return 1;
 
@@ -50,7 +51,7 @@ int main() {
 
     cargar_teselas(teselas);
 
-    //imagen_t *ruta = ruta_cargar_rom();
+    imagen_t *ruta = ruta_cargar_rom();
 
     //imagen_guardar_ppm(ruta, "prueba.txt", pixel3_a_rgb);
 
@@ -75,6 +76,7 @@ int main() {
                         moto_set_der(moto, true);
                         break;
                     case SDLK_LEFT:
+                        moto_set_izq(moto, true);
                         break;
                 }
             }
@@ -91,6 +93,7 @@ int main() {
                         moto_set_der(moto, false);
                         break;
                     case SDLK_LEFT:
+                        moto_set_izq(moto, false);
                         break;
                 }
             }
@@ -109,11 +112,11 @@ int main() {
             x = -10;
 
 
-        if(moto_get_der(moto))intensidad++;
+        if(moto_get_der(moto) || moto_get_izq(moto))intensidad++;
 
-        if(!moto_get_der(moto))intensidad--;
+        if(!moto_get_der(moto) && !moto_get_izq(moto))intensidad--;
 
-        if(intensidad > 1) intensidad = 1;
+        if(intensidad > 3) intensidad = 3;
 
         if(intensidad < 0) intensidad = 0;
 
@@ -124,24 +127,24 @@ int main() {
         imagen_t *fondo1 = generar_mosaico(teselas, paleta_3, FONDO1_FILAS, FONDO1_COLUMNAS, fondo1_mosaico, fondo1_paleta);
         imagen_t *fondo2 = generar_mosaico(teselas, paleta_3, FONDO2_FILAS, FONDO2_COLUMNAS, fondo2_mosaico, fondo2_paleta);
 
-        imagen_pegar(cuadro, fondo2, /*-20*/ -x*2, 64);
-        imagen_pegar(cuadro, fondo1, /*-1126*/-x, 112);
+        imagen_pegar(cuadro, fondo2, /*-20*/ -x*2, 64, false);
+        imagen_pegar(cuadro, fondo1, /*-1126*/-x, 112, false);
 
         imagen_destruir(fondo1);
         imagen_destruir(fondo2);
 
         imagen_t *pasto = generar_pasto();
 
-        imagen_pegar(cuadro, pasto, 0, 128);
+        imagen_pegar(cuadro, pasto, 0, 128, false);
         imagen_destruir(pasto);
 
-        //imagen_pegar_con_paleta(cuadro, ruta, -300, 0, colores_ruta[0]);
+        imagen_pegar_con_paleta(cuadro, ruta, 0, 128, colores_ruta[0]);
 
         /*moto*/
 
         //imagen_t *moto1 = obtener_figura(rom, 17215, 60, 54);
         imagen_t *moto1 = moto_get_figura(moto, rom);
-        imagen_pegar_con_paleta(cuadro, moto1, 100, 0, paleta_4[1]);
+        imagen_pegar_con_paleta(cuadro, moto1, 140, 160, paleta_4[1]);
         imagen_destruir(moto1);
 
         //imagen_pegar_con_paleta(cuadro, espejado, 50, 100, paleta_4[2]);

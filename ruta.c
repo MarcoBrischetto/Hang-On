@@ -4308,6 +4308,12 @@ const pixel_t colores_ruta[][16] = {
 };
 
 /*
+    TODO podria hacer un vector de imagenes con cada fila y capaz seria mas facil
+        para poder desplazar despues
+*/
+
+
+/*
     funcion: ruta_transparentar
     elimina los bits no deseados de la izquierda de la ruta
 */
@@ -4327,16 +4333,83 @@ static void ruta_transparentar(imagen_t *ruta){
 }
 
 /*
+    funcion: ruta_transparentar
+    Genera una imagen de la ruta completa y recortada, pegando las dos mitades
+*/
+
+static imagen_t *ruta_completar(imagen_t *ruta){
+
+    imagen_t *ruta_completa = imagen_generar(imagen_get_ancho(ruta), ALTO_RECORTADO_RUTA, 0);
+    if(ruta_completa == NULL) return NULL;
+
+    imagen_pegar(ruta_completa, ruta, -346, -16, false);
+    imagen_pegar(ruta_completa, ruta, 158, -16, true);
+
+    return ruta_completa;
+}
+
+/*
     funcion: ruta_cargar_rom
     devuelve la imagen de la ruta contenida en la rom
     obs: ver si se puede leer de a mas bytes
 */
+
 imagen_t *ruta_cargar_rom(){
 
     FILE *rom = fopen(ARCHIVO_ROM_RUTA, "rb");
     if(rom == NULL) return NULL;
 
-    imagen_t *ruta = imagen_generar(512, 128, 0);
+    imagen_t *ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA, 0);
+    if(ruta == NULL){
+        fclose(rom);
+        return NULL;
+    }
+
+    uint8_t byte, pa = 0, pb = 0, pc = 0, pd = 0;
+    pixel_t pixel;
+
+    for(size_t i = 0; i < 4; i++){
+        for(size_t f = 0; f < ALTO_RUTA; f++){
+            for(size_t c = 0; c < ANCHO_RUTA/8; c++){
+
+                fread(&byte, 1, 1, rom);
+
+                for(size_t j = 0; j < 8; j++){
+
+                    pixel = imagen_get_pixel(ruta, c*8 + j, f);
+
+                    pixel4_a_abcd(pixel, &pa, &pb, &pc, &pd);
+
+                    if(i == 0) pd = (byte >> (7 - j)) & 0x1;
+                    if(i == 1) pc = (byte >> (7 - j)) & 0x1;
+                    if(i == 2) pb = (byte >> (7 - j)) & 0x1;
+                    if(i == 3) pa = (byte >> (7 - j)) & 0x1;
+
+                    pixel = pixel4_crear( pa, pb, pc, pd);
+
+                    imagen_set_pixel(ruta, c*8 + j, f, pixel);
+                }
+            }
+        }
+    }
+
+    fclose(rom);
+
+    ruta_transparentar(ruta);
+    imagen_t *ruta_final = ruta_completar(ruta);
+    imagen_destruir(ruta);
+
+    return ruta_final;
+
+}
+
+/*
+imagen_t *ruta_cargar_rom(){
+
+    FILE *rom = fopen(ARCHIVO_ROM_RUTA, "rb");
+    if(rom == NULL) return NULL;
+
+    imagen_t *ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA, 0);
     if(ruta == NULL){
         fclose(rom);
         return NULL;
@@ -4345,9 +4418,9 @@ imagen_t *ruta_cargar_rom(){
     uint8_t byte, a = 0, b = 0, e = 0, d = 0;
     pixel_t pixel;
 
-    for(size_t f = 0; f < 128; f++){
+    for(size_t f = 0; f < ALTO_RUTA; f++){
 
-        for(size_t c = 0; c < 512/8; c++){
+        for(size_t c = 0; c < ANCHO_RUTA/8; c++){
 
             fread(&byte, 1, 1, rom);
 
@@ -4362,9 +4435,9 @@ imagen_t *ruta_cargar_rom(){
         }
     }
 
-    for(size_t f = 0; f < 128; f++){
+    for(size_t f = 0; f < ALTO_RUTA; f++){
 
-        for(size_t c = 0; c < 512/8; c++){
+        for(size_t c = 0; c < ANCHO_RUTA/8; c++){
 
             fread(&byte, 1, 1, rom);
 
@@ -4383,9 +4456,9 @@ imagen_t *ruta_cargar_rom(){
         }
     }
 
-    for(size_t f = 0; f < 128; f++){
+    for(size_t f = 0; f < ALTO_RUTA; f++){
 
-        for(size_t c = 0; c < 512/8; c++){
+        for(size_t c = 0; c < ANCHO_RUTA/8; c++){
 
             fread(&byte, 1, 1, rom);
 
@@ -4404,9 +4477,9 @@ imagen_t *ruta_cargar_rom(){
         }
     }
 
-    for(size_t f = 0; f < 128; f++){
+    for(size_t f = 0; f < ALTO_RUTA; f++){
 
-        for(size_t c = 0; c < 512/8; c++){
+        for(size_t c = 0; c < ANCHO_RUTA/8; c++){
 
             fread(&byte, 1, 1, rom);
 
@@ -4428,7 +4501,11 @@ imagen_t *ruta_cargar_rom(){
     fclose(rom);
 
     ruta_transparentar(ruta);
+    imagen_t *ruta_final = ruta_completar(ruta);
+    imagen_destruir(ruta);
 
-    return ruta;
+    return ruta_final;
 
 }
+
+*/

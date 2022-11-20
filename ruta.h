@@ -7,6 +7,11 @@
 
 #define ARCHIVO_ROM_RUTA "roms/6840.rom"
 
+#define ANCHO_RUTA  512
+#define ALTO_RUTA   128
+
+#define ALTO_RECORTADO_RUTA    96
+
 enum figura{
     ARBOL, CARTEL, ROCA, BELL, FORUM, DELFIN
 };

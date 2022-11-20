@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+/*
+	TODO revisar imagen_reflejar y ver como conviene representarla
+		imagen_get_fila que devulva una imagen de dicha fila
+*/
 
 struct imagen{
 	pixel_t **pixeles;
@@ -115,13 +118,19 @@ void imagen_imprimir_pgm(const imagen_t *imagen){
 	}
 }
 
-void imagen_pegar(imagen_t *destino, const imagen_t *origen, int x, int y){
+void imagen_pegar(imagen_t *destino, imagen_t *origen, int x, int y, bool reflejar){
 
-	for(int f = y >= 0 ? 0 : -y; f < origen->alto && f + y < destino->alto; f++)
-		for(int c = x >= 0 ? 0 : -x; c < origen->ancho && c + x < destino->ancho; c++){
-			if(origen->pixeles[f][c] != 0)
-				destino->pixeles[f+y][c+x] = origen->pixeles[f][c];
+	imagen_t *o = origen;
+
+	if(reflejar) o = imagen_reflejar(origen);
+
+	for(int f = y >= 0 ? 0 : -y; f < o->alto && f + y < destino->alto; f++)
+		for(int c = x >= 0 ? 0 : -x; c < o->ancho && c + x < destino->ancho; c++){
+			if(o->pixeles[f][c] != 0)
+				destino->pixeles[f+y][c+x] = o->pixeles[f][c];
 	}
+
+	if(reflejar) imagen_destruir(o);
 
 }
 
@@ -176,8 +185,26 @@ bool imagen_set_pixel(const imagen_t *im, size_t x, size_t y, pixel_t p){
 	funcion: reflejar imagen
 	recibe una imagen y devuelve una imagen nueva con su reflejo
 */
+/*
+imagen_t *imagen_reflejar(imagen_t **im){
 
-imagen_t *imagen_reflejar(imagen_t *im){
+	imagen_t *reflejada = imagen_generar((*im)->ancho, (*im)->alto, 0);
+	if(reflejada == NULL) return false;
+
+	for(size_t f = 0; f < reflejada->alto; f++){
+		for(size_t c = 0; c < reflejada->ancho; c++){
+			reflejada->pixeles[f][c] = (*im)->pixeles[f][(*im)->ancho - c - 1]; //-1 para no pisar fuera de memoria
+		}
+	}
+
+	imagen_destruir(*im);
+
+	return reflejada;
+
+}
+*/
+
+imagen_t *imagen_reflejar(const imagen_t *im){
 
 	imagen_t *reflejada = imagen_generar(im->ancho, im->alto, 0);
 	if(reflejada == NULL) return NULL;
@@ -187,8 +214,6 @@ imagen_t *imagen_reflejar(imagen_t *im){
 			reflejada->pixeles[f][c] = im->pixeles[f][im->ancho - c - 1]; //-1 para no pisar fuera de memoria
 		}
 	}
-
-	//imagen_destruir(im);
 
 	return reflejada;
 
@@ -247,6 +272,9 @@ void imagen_a_textura(const imagen_t *im, uint16_t *v){
 }
 
 
-
+/*
+	funcion: imagen_pegar_fila
+	pega una fila determinada de una imagen con una paleta
+*/
 
 

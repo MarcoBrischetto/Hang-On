@@ -9,7 +9,7 @@
         -fuerzo el maximo si ingresan valores no validos?
         -ver si no conviene expresar el movimiento de otra manera
         -capaz no vale la pena poner la figura y el reflejo y solamente usar intensidad de giro
-
+        -ver posicionamiento a la hora de girar
  */
 
 enum figura_moto {
@@ -78,20 +78,22 @@ moto_t *moto_crear(){
 imagen_t *moto_get_figura(moto_t *moto, uint16_t *rom){
 
     imagen_t *fig = obtener_figura(rom, tabla_sprites[moto->intensidad].pos, tabla_sprites[moto->intensidad].ancho, tabla_sprites[moto->intensidad].alto);
-
     if(fig == NULL) return NULL;
 
-    if(moto->reflejar){
+    if(moto->izquierda){
         imagen_t *aux  = imagen_reflejar(fig);
+
         if(aux == NULL){
             imagen_destruir(fig);
             return NULL;
         }
+
+        imagen_destruir(fig);
         fig = aux;
+
     }
 
     return fig;
-
 }
 
 

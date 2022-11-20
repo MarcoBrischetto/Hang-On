@@ -1,12 +1,12 @@
 CC=gcc
 CFLAGS=-Wall -Werror -std=c99 -pedantic -c
-LFLAGS=-Wall -lSDL2
+LFLAGS=-Wall -lSDL2 -lm
 DEBUG=-g
 
 all: hangon
 
-hangon: main.o fondo.o paleta.o imagen.o pixel.o ruta.o figura.o teselas.o moto.o
-	$(CC) $(LFLAGS) $(DEBUG) -o hangon main.o fondo.o paleta.o imagen.o pixel.o ruta.o figura.o teselas.o moto.o
+hangon: main.o fondo.o paleta.o imagen.o pixel.o ruta.o figura.o teselas.o moto.o ecuaciones.o
+	$(CC) $(LFLAGS) $(DEBUG) -o hangon main.o fondo.o paleta.o imagen.o pixel.o ruta.o figura.o teselas.o moto.o ecuaciones.o
 
 main.o: main.c config.h imagen.h
 	$(CC) $(CFLAGS) $(DEBUG) -o main.o main.c
@@ -34,6 +34,9 @@ teselas.o: teselas.c teselas.h imagen.h
 
 moto.o: moto.c moto.h imagen.h
 	$(CC) $(CFLAGS) $(DEBUG) -o moto.o moto.c
+
+ecuaciones.o: ecuaciones.c ecuaciones.h
+	$(CC) $(CFLAGS) $(DEBUG) -o ecuaciones.o ecuaciones.c
 
 paleta.h: pixel.h
 

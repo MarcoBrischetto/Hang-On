@@ -89,10 +89,16 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
 
     for(size_t i = pos; i < pos + (ancho*alto)/4 - ancho/4; i++){
 
-        //if(c >= ancho || f >= alto) break;
+        if(c >= ancho) c = 0;
 
         //mientras sea nueva linea y sea 0xf, saltea
-        if( nueva_linea && ((rom[i] & 0xf) == 0xf))
+
+        /*
+        if(nueva_linea && ((rom[i] & 0xf) == 0xf)){
+            continue;
+        }*/
+
+        if(nueva_linea && ((rom[i] & 0xf) == 0xf))
             continue;
 
         nueva_linea = 0;
@@ -100,14 +106,15 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
         //si es 0xf, lo cambio a 0
 
         for(size_t j = 0; j < 4; j++){
-            uint8_t aux;
-            uint8_t pixel = ((aux = ((rom[i] >> (12 - j * 4)) & 0xf)) == 0xf)? 0 : aux;
+            uint16_t aux;
+            pixel_t pixel = ((aux = ((rom[i] >> (12 - j * 4)) & 0xf)) == 0xf)? 0 : aux;
+            //uint8_t pixel = (rom[i] >> (12 - j * 4)) & 0xf;
             imagen_set_pixel(fig, c + j, f, pixel);
         }
 
         if((rom[i] & 0xf) == 0xf){
-            f++;
             c = 0;
+            f++;
             nueva_linea = 1;
             continue;
         }
