@@ -10,6 +10,7 @@
 #include "figura.h"
 #include "teselas.h"
 #include "moto.h"
+#include "ecuaciones.h"
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -30,7 +31,13 @@ int main() {
     // BEGIN código del alumno
     double x = -10;
     bool mover = false;
-    int intensidad = 0;
+    //int intensidad = 0;
+    //double cnt = 0;
+    double tiempo = 0;
+
+    double ul[POSICIONES_VECTOR];
+    double uc[POSICIONES_VECTOR];
+    double ur[POSICIONES_VECTOR];
 
 
     uint16_t rom[CANTIDAD_VALORES_ROMS];
@@ -51,7 +58,7 @@ int main() {
 
     cargar_teselas(teselas);
 
-    imagen_t *ruta = ruta_cargar_rom();
+    imagen_t *img_ruta = ruta_cargar_rom();
 
     //imagen_guardar_ppm(ruta, "prueba.txt", pixel3_a_rgb);
 
@@ -68,9 +75,11 @@ int main() {
                 // Se apretó una tecla
                 switch(event.key.keysym.sym) {
                     case SDLK_UP:
-                        mover = true;
+                        moto_set_acelerar(moto, true);
+                        //mover = true;
                         break;
                     case SDLK_DOWN:
+                        moto_set_freno(moto, true);
                         break;
                     case SDLK_RIGHT:
                         moto_set_der(moto, true);
@@ -85,9 +94,11 @@ int main() {
                 // Se soltó una tecla
                 switch(event.key.keysym.sym) {
                     case SDLK_UP:
+                        moto_set_acelerar(moto, false);
                         mover = false;
                         break;
                     case SDLK_DOWN:
+                        moto_set_freno(moto, false);
                         break;
                     case SDLK_RIGHT:
                         moto_set_der(moto, false);
@@ -104,23 +115,33 @@ int main() {
         // BEGIN código del alumno
 
 
+
+        desplazamiento_lateral(ul, moto_get_y(moto));
+        desplazamiento_curva(uc, ruta, (int)moto_get_x(moto));
+        desplazamiento_total(uc, ul, ur);
+/*
+        printf("y = %f\n",moto_get_y(moto));
+        printf("x = %f\n",moto_get_x(moto));
+        printf("vel = %f\n\n ",moto_get_velocidad(moto));
+        printf("acelerar = %d\n", moto_get_acelerar(moto));
+        printf("freno = %d\n", moto_get_freno(moto));
+*/
+
+
+
         imagen_t *cuadro = imagen_generar(320, 224, 0x00f);
 
         if(mover)
-            x += 1;
-        if(x > 320)
+            x += 2;
+        if(x > 1000)
             x = -10;
 
+        /*fisicas*/
+        tiempo += 1.0/JUEGO_FPS;
 
-        if(moto_get_der(moto) || moto_get_izq(moto))intensidad++;
+        moto_computar_fisicas(moto, 1.0/JUEGO_FPS, ruta[(int)moto_get_x(moto)].radio_curva, tiempo);
 
-        if(!moto_get_der(moto) && !moto_get_izq(moto))intensidad--;
 
-        if(intensidad > 3) intensidad = 3;
-
-        if(intensidad < 0) intensidad = 0;
-
-        moto_set_intensidad(moto, intensidad);
 
         /*generacion de fondo*/
 
@@ -138,13 +159,30 @@ int main() {
         imagen_pegar(cuadro, pasto, 0, 128, false);
         imagen_destruir(pasto);
 
-        imagen_pegar_con_paleta(cuadro, ruta, 0, 128, colores_ruta[0]);
+        /*ruta*/
+
+        //imagen_pegar_con_paleta(cuadro, img_ruta, 100, 20, colores_ruta[0], false);
+        //imagen_t *ruta_transformada = ruta_transformar(ur, ruta, colores_ruta);
+
+        //imagen_pegar(cuadro, ruta_transformada, 0, 128, false);
+
+        //imagen_destruir(ruta_transformada);
+/*
+        static size_t paleta = 0;
+        for(size_t v = 0; v < imagen_get_alto(img_ruta); v++){
+            imagen_pegar_fila_con_paleta(cuadro, img_ruta, ur[v], 223-v, colores_ruta[paleta], 95 - v);
+            paleta++;
+            if(paleta > 3) paleta = 0;
+        }
+*/
+
+        ruta_dibujar(cuadro, img_ruta, ur, moto_get_x(moto), ruta);
 
         /*moto*/
 
         //imagen_t *moto1 = obtener_figura(rom, 17215, 60, 54);
         imagen_t *moto1 = moto_get_figura(moto, rom);
-        imagen_pegar_con_paleta(cuadro, moto1, 140, 160, paleta_4[1]);
+        imagen_pegar_con_paleta(cuadro, moto1, moto_dibujado_x(moto), moto_dibujado_y(moto), paleta_4[moto_get_paleta(moto)], false);
         imagen_destruir(moto1);
 
         //imagen_pegar_con_paleta(cuadro, espejado, 50, 100, paleta_4[2]);
@@ -191,7 +229,7 @@ int main() {
     // No tengo nada que destruir.
     moto_destruir(moto);
     //imagen_destruir(espejado);
-    //imagen_destruir(ruta);
+    imagen_destruir(img_ruta);
     liberar_teselas(teselas);
     // END código del alumno
 

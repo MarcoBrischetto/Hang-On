@@ -1,5 +1,6 @@
 #include "ruta.h"
 #include "stdio.h"
+#include "ecuaciones.h"
 
 const struct figura_en_ruta figuras_en_ruta[] = {
     {ARBOL, 38, -300, 0},
@@ -4339,11 +4340,11 @@ static void ruta_transparentar(imagen_t *ruta){
 
 static imagen_t *ruta_completar(imagen_t *ruta){
 
-    imagen_t *ruta_completa = imagen_generar(imagen_get_ancho(ruta), ALTO_RECORTADO_RUTA, 0);
+    imagen_t *ruta_completa = imagen_generar(imagen_get_ancho(ruta) + 100, ALTO_RECORTADO_RUTA, 0);
     if(ruta_completa == NULL) return NULL;
 
-    imagen_pegar(ruta_completa, ruta, -346, -16, false);
-    imagen_pegar(ruta_completa, ruta, 158, -16, true);
+    imagen_pegar(ruta_completa, ruta, -286/*-346*/, -16, false);
+    imagen_pegar(ruta_completa, ruta, /*158*/218, -16, true);
 
     return ruta_completa;
 }
@@ -4402,110 +4403,60 @@ imagen_t *ruta_cargar_rom(){
     return ruta_final;
 
 }
-
 /*
-imagen_t *ruta_cargar_rom(){
+    funcion: ruta _transformar
+    devuelve una imagen de la ruta con el desplazamiento
+    aplicado ur
+*/
+imagen_t *ruta_transformar(double *ur, imagen_t *ruta, const pixel_t paletas[][16]){
 
-    FILE *rom = fopen(ARCHIVO_ROM_RUTA, "rb");
-    if(rom == NULL) return NULL;
+    imagen_t *ruta_transformada = imagen_generar(imagen_get_ancho(ruta), imagen_get_alto(ruta), 0);
 
-    imagen_t *ruta = imagen_generar(ANCHO_RUTA, ALTO_RUTA, 0);
-    if(ruta == NULL){
-        fclose(rom);
-        return NULL;
-    }
+    if(ruta_transformada == NULL) return NULL;
 
-    uint8_t byte, a = 0, b = 0, e = 0, d = 0;
-    pixel_t pixel;
+    //static size_t paleta = 0;
 
-    for(size_t f = 0; f < ALTO_RUTA; f++){
+    //double distancia_anterior = 0;
 
-        for(size_t c = 0; c < ANCHO_RUTA/8; c++){
+    for(size_t v = 0; v < /*imagen_get_alto(ruta)*/ 90; v++){
 
-            fread(&byte, 1, 1, rom);
+        imagen_pegar_fila_con_paleta(ruta_transformada, ruta, 20, v, paletas[1], v);
 
-            for(size_t i = 0; i < 8; i++){
-
-                d = (byte >> (7 - i)) & 0x1;
-
-                pixel = pixel4_crear( a, b, e, d);
-
-                imagen_set_pixel(ruta, c*8 + i, f, pixel);
-            }
+        /*
+        double distancia_actual = d(v);
+        if(distancia_actual - distancia_anterior >= 1){
+            distancia_anterior = distancia_actual;
+            paleta++;
         }
+
+        //if(paleta > 3) paleta = 0;*/
     }
 
-    for(size_t f = 0; f < ALTO_RUTA; f++){
-
-        for(size_t c = 0; c < ANCHO_RUTA/8; c++){
-
-            fread(&byte, 1, 1, rom);
-
-            for(size_t i = 0; i < 8; i++){
-
-                pixel = imagen_get_pixel(ruta, c*8 + i, f);
-
-                pixel4_a_abcd(pixel, &a, &b, &e, &d);
-
-                e = (byte >> (7 - i)) & 0x1;
-
-                pixel = pixel4_crear( a, b, e, d);
-
-                imagen_set_pixel(ruta, c*8 + i, f, pixel);
-            }
-        }
-    }
-
-    for(size_t f = 0; f < ALTO_RUTA; f++){
-
-        for(size_t c = 0; c < ANCHO_RUTA/8; c++){
-
-            fread(&byte, 1, 1, rom);
-
-            for(size_t i = 0; i < 8; i++){
-
-                pixel = imagen_get_pixel(ruta, c*8 + i, f);
-
-                pixel4_a_abcd(pixel, &a, &b, &e, &d);
-
-                b = (byte >> (7 - i)) & 0x1;
-
-                pixel = pixel4_crear( a, b, e, d);
-
-                imagen_set_pixel(ruta, c*8 + i, f, pixel);
-            }
-        }
-    }
-
-    for(size_t f = 0; f < ALTO_RUTA; f++){
-
-        for(size_t c = 0; c < ANCHO_RUTA/8; c++){
-
-            fread(&byte, 1, 1, rom);
-
-            for(size_t i = 0; i < 8; i++){
-
-                pixel = imagen_get_pixel(ruta, c*8 + i, f);
-
-                pixel4_a_abcd(pixel, &a, &b, &e, &d);
-
-                a = (byte >> (7 - i)) & 0x1;
-
-                pixel = pixel4_crear( a, b, e, d);
-
-                imagen_set_pixel(ruta, c*8 + i, f, pixel);
-            }
-        }
-    }
-
-    fclose(rom);
-
-    ruta_transparentar(ruta);
-    imagen_t *ruta_final = ruta_completar(ruta);
-    imagen_destruir(ruta);
-
-    return ruta_final;
-
+    return ruta_transformada;
 }
 
-*/
+void ruta_dibujar(imagen_t *cuadro, imagen_t *ruta, double *ur, double xm, const struct ruta *r){
+
+    static size_t paleta = 0;
+    static double cnt = 0;
+
+    cnt += xm;
+
+    size_t primera_paleta = paleta;
+
+    for(size_t v = 0; v < imagen_get_alto(ruta); v++){
+        imagen_pegar_fila_con_paleta(cuadro, ruta, ur[v], 223-v, colores_ruta[paleta], 95 - v);
+
+        cnt += d(v);
+
+        if((int)(cnt) % 4 == 0){
+            cnt = 0;
+            paleta++;
+        }
+
+        if(paleta > 3) paleta = 0;
+    }
+
+    paleta = primera_paleta;
+
+}

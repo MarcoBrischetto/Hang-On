@@ -55,7 +55,7 @@ double escalado_ancho(double v, unsigned int a0){
 void desplazamiento_lateral(double *ul, double ym){
 
     for(size_t v = 0; v < POSICIONES_VECTOR; v++)
-        ul[v] = -ym*(1-(v/96));
+        ul[v] = -ym*(1-(v/96*1.0));
 
 }
 
@@ -69,16 +69,32 @@ void desplazamiento_lateral(double *ul, double ym){
     funcion: desplazamiento_curva
     recibe un vector de al menos POSICIONES_VECTOR y guarda en el
     los desplazamientos de curvatura. Para ello recibe una struct r
-    con informacion de la ruta.
+    con informacion de la ruta y un xm para poder posicionarse
+    correctamente
 */
-void desplazamiento_curva(double *uc, const struct ruta *r){
+void desplazamiento_curva(double *uc, const struct ruta *r, double xm){
 
     uc[0] = 0;
 
     for(size_t v = 1; v < POSICIONES_VECTOR; v++)
-        uc[v] = uc[v-1] + r[(int)d(v)].radio_curva*exp(0.105*v-8.6);
+        uc[v] = uc[v-1] + r[(int)(xm+d(v))].radio_curva*exp(0.105*v-8.6);
 
 }
+
+/*
+    funcion: desplazamiento_total
+    recibe los dos vectores de desplazamiento y los suma
+    miembro a miembro
+*/
+
+void desplazamiento_total(double *uc, double *ul, double *ur){
+    for(size_t v = 0; v < POSICIONES_VECTOR; v++){
+        ur[v] = uc[v] + ul[v];
+    }
+}
+/*
+
+*/
 
 /*
     funcion: u

@@ -219,13 +219,19 @@ imagen_t *imagen_reflejar(const imagen_t *im){
 
 }
 
-void imagen_pegar_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[]){
+void imagen_pegar_con_paleta(imagen_t *destino, imagen_t *origen, int x, int y, const pixel_t paleta[], bool reflejar){
 
-	for(int f = y >= 0 ? 0 : -y; f < origen->alto && f + y < destino->alto; f++)
-		for(int c = x >= 0 ? 0 : -x; c < origen->ancho && c + x < destino->ancho; c++){
-			if(origen->pixeles[f][c] != 0)
-				destino->pixeles[f+y][c+x] = paleta[origen->pixeles[f][c]];
+	imagen_t *o = origen;
+
+	if(reflejar) o = imagen_reflejar(origen);
+
+	for(int f = y >= 0 ? 0 : -y; f < o->alto && f + y < destino->alto; f++)
+		for(int c = x >= 0 ? 0 : -x; c < o->ancho && c + x < destino->ancho; c++){
+			if(o->pixeles[f][c] != 0)
+				destino->pixeles[f+y][c+x] = paleta[o->pixeles[f][c]];
 	}
+
+	if(reflejar) imagen_destruir(o);
 
 }
 
@@ -273,8 +279,15 @@ void imagen_a_textura(const imagen_t *im, uint16_t *v){
 
 
 /*
-	funcion: imagen_pegar_fila
+	funcion: imagen_pegar_fila_con_paleta
 	pega una fila determinada de una imagen con una paleta
 */
 
+void imagen_pegar_fila_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[], size_t f){
+
+		for(int c = x >= 0 ? 0 : -x; c < origen->ancho && c + x < destino->ancho; c++){
+				if(origen->pixeles[f][c] != 0)
+					destino->pixeles[y][c+x] = paleta[origen->pixeles[f][c]];
+		}
+}
 

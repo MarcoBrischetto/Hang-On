@@ -34,5 +34,7 @@ extern const pixel_t colores_ruta[][16];
 
 /*Prototipos de funciones*/
 imagen_t *ruta_cargar_rom();
+imagen_t *ruta_transformar(double *ur, imagen_t *ruta, const pixel_t paletas[][16]);
+void ruta_dibujar(imagen_t *cuadro, imagen_t *ruta, double *ur, double xm, const struct ruta *r);
 
 #endif

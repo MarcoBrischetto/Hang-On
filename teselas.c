@@ -95,7 +95,7 @@ imagen_t *generar_mosaico(imagen_t *teselas[], const pixel_t paleta[][8], size_t
     for(size_t f = 0; f < filas; f++){
         for(size_t c = 0; c < columnas; c++){
 
-            imagen_pegar_con_paleta(img, teselas[mosaico_teselas[f][c]], c*ANCHO_TESELA, f*ALTO_TESELA, paleta[mosaico_paletas[f][c]]);
+            imagen_pegar_con_paleta(img, teselas[mosaico_teselas[f][c]], c*ANCHO_TESELA, f*ALTO_TESELA, paleta[mosaico_paletas[f][c]], false);
 
         }
     }

@@ -1,5 +1,7 @@
 #include "moto.h"
 #include <stdlib.h>
+#include "fisica.h"
+#include "math.h"
 
 /*
     TODO:  -la moto misma va a devolver que hay que dibujar
@@ -17,7 +19,7 @@ enum figura_moto {
 };
 
 enum paleta_moto{
-    PALETA_MOTO_0, PALETA_MOTO_1, PALETA_MOTO_2, PALETA_MOTO_3
+    PALETA_MOTO_0 = 0, PALETA_MOTO_1, PALETA_MOTO_2, PALETA_MOTO_3
 };
 
 /*
@@ -26,8 +28,7 @@ enum paleta_moto{
 */
 
 struct moto {
-    double velocidad;   //velocidad de la moto en m/s, de 0 a 279 km/h o 77.5 m/s
-    enum figura_moto figura;      //indice de la figura a dibujar en ese instante
+    double velocidad;   //velocidad de la moto en km/h, de 0 a 279 km/h
     enum paleta_moto paleta;      //paleta a dibujar en un instante
     bool reflejar;      //se espeja la figura? // capaz me lo puedo ahorrar usando el giro y la intensidad
     double x;           //posicion en x respecto de la ruta (longitudinal)
@@ -36,8 +37,12 @@ struct moto {
     bool acelerar;      //acelerando?
     bool derecha;       //girando?
     bool izquierda;
-    int intensidad;    //nivel de giro en ese instante de 0 - 3, 0 minimo
+    int intensidad;    //nivel de giro en ese instante de -3 a 3, negativo es izquierda
     bool colision;      // la moto colisiono con algo?
+    double puntaje;
+    bool morder;
+    bool ganar;
+    bool perder;
 };
 
 
@@ -46,41 +51,46 @@ struct moto_sprite {
     size_t pos;
     size_t ancho;
     size_t alto;
+    size_t dibujado_x;
+    size_t dibujado_y;
 };
 
 const struct moto_sprite tabla_sprites[4] = {
-    [MOTO_1] =  {532, 36, 73},
-    [MOTO_2] =  {5670, 36, 70},
-    [MOTO_3] =  {11284, 46, 63},
-    [MOTO_4] =  {17215, 60, 54}
+    [MOTO_1] =  {532, 36, 73, 144, 150},
+    [MOTO_2] =  {5670, 36, 70, 126, 153},
+    [MOTO_3] =  {11284, 46, 63, 126, 163},
+    [MOTO_4] =  {17215, 60, 54, 126, 172}
 };
 
 moto_t *moto_crear(){
     moto_t *moto = malloc(sizeof(moto_t));
     if(moto == NULL) return NULL;
 
-    moto->velocidad = 0;
-    moto->figura = MOTO_1;
+    moto->velocidad = 1;
     moto->paleta = PALETA_MOTO_0;
     moto->reflejar = false;
     moto->x = 0;
-    moto->y = 162;
+    moto->y = 0;
     moto->freno = false;
     moto->acelerar = false;
     moto->derecha = false;
     moto->izquierda = false;
     moto->intensidad = 0;
     moto->colision = 0;
-
+    moto->morder = false;
+    moto->ganar = false;
+    moto->perder = false;
     return moto;
 }
 
 imagen_t *moto_get_figura(moto_t *moto, uint16_t *rom){
 
-    imagen_t *fig = obtener_figura(rom, tabla_sprites[moto->intensidad].pos, tabla_sprites[moto->intensidad].ancho, tabla_sprites[moto->intensidad].alto);
+    int intensidad = abs(moto->intensidad);
+
+    imagen_t *fig = obtener_figura(rom, tabla_sprites[intensidad].pos, tabla_sprites[intensidad].ancho, tabla_sprites[intensidad].alto);
     if(fig == NULL) return NULL;
 
-    if(moto->izquierda){
+    if(moto->intensidad < 0){
         imagen_t *aux  = imagen_reflejar(fig);
 
         if(aux == NULL){
@@ -94,6 +104,86 @@ imagen_t *moto_get_figura(moto_t *moto, uint16_t *rom){
     }
 
     return fig;
+}
+
+size_t moto_get_paleta(moto_t *moto){
+
+    static double distancia_anterior = 0;
+
+    if(moto->x - distancia_anterior > 2){
+        distancia_anterior = moto->x;
+
+        if(moto->freno){
+            if(moto->paleta == PALETA_MOTO_2){
+                return moto->paleta = PALETA_MOTO_3;
+            }
+
+            return moto->paleta = PALETA_MOTO_2;
+
+        }
+
+        if(moto->paleta == PALETA_MOTO_0){
+            return moto->paleta = PALETA_MOTO_1;
+        }
+
+        return moto->paleta = PALETA_MOTO_0;
+    }
+
+    return moto->paleta;
+
+}
+
+double moto_dibujado_x(moto_t *moto){
+
+    return tabla_sprites[abs(moto->intensidad)].dibujado_x;
+
+}
+
+double moto_dibujado_y(moto_t *moto){
+    return tabla_sprites[abs(moto->intensidad)].dibujado_y;
+}
+
+
+void moto_computar_fisicas(moto_t *moto, double tiempo, double r, double tiempo_total){
+
+    moto->x += posicion_x(moto->velocidad, tiempo);
+
+    /*velocidad*/
+    if((moto->acelerar) || (moto->velocidad < 80)){
+        moto->velocidad = aceleracion(moto->velocidad, tiempo);
+    }
+
+    if(moto->freno){
+        moto->velocidad = frenado(moto->velocidad, tiempo);
+    }
+
+    if(!moto->freno && !moto->acelerar){
+        moto->velocidad = desaceleracion(moto->velocidad, tiempo);
+    }
+
+    moto->velocidad = morder_banquina(moto->velocidad, tiempo, moto->y);
+
+    /*giros*/
+    if(moto->derecha){
+        moto->intensidad = intensidad_giro_derecha(moto->intensidad);
+    }else if(moto->izquierda){
+         moto->intensidad = intensidad_giro_izquierda(moto->intensidad);
+    }else{
+        moto->intensidad = reposo(moto->intensidad);
+    }
+
+    moto->y = posicion_y(moto->y, moto->intensidad);
+
+    moto->y = irse_al_pasto(moto->y);
+
+    moto->y = giro_de_ruta(moto->y, r, moto->velocidad, tiempo);
+
+    moto->puntaje = puntaje(moto->velocidad, tiempo, moto->puntaje, moto->x);
+
+    moto->ganar = ganar(moto->x);
+
+    moto->perder = perder(tiempo_total);
+
 }
 
 
@@ -136,6 +226,18 @@ bool moto_get_izq(moto_t *moto){
 
 bool moto_get_colision(moto_t *moto){
     return moto->colision;
+}
+
+double moto_get_puntaje(moto_t *moto){
+    return moto->puntaje;
+}
+
+bool moto_get_ganar(moto_t *moto){
+    return moto->ganar;
+}
+
+bool moto_get_perder(moto_t *moto){
+    return moto->perder;
 }
 
 /*setters*/
@@ -182,3 +284,8 @@ void moto_set_colision(moto_t *moto, bool colision){
     /*TODO modificar segun sea necesario*/
     moto->colision = colision;
 }
+
+void moto_set_puntaje(moto_t *moto, double puntaje){
+    moto->puntaje = puntaje;
+}
+
