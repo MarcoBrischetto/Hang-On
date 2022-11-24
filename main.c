@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "config.h"
 #include "imagen.h"
@@ -11,6 +12,10 @@
 #include "teselas.h"
 #include "moto.h"
 #include "ecuaciones.h"
+#include "textos.h"
+
+void generar_textos_estaticos(imagen_t *cuadro, imagen_t *teselas[]);
+void generar_textos_variables(imagen_t *cuadro, imagen_t *teselas[], int velocidad, int puntaje, int tiempo_restante);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -29,38 +34,24 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    double x = -10;
-    bool mover = false;
-    //int intensidad = 0;
-    //double cnt = 0;
     double tiempo = 0;
 
     double ul[POSICIONES_VECTOR];
     double uc[POSICIONES_VECTOR];
     double ur[POSICIONES_VECTOR];
 
-
     uint16_t rom[CANTIDAD_VALORES_ROMS];
     if(cargar_figuras_rom(rom) == false) return 1;
-
-    //imagen_t *moto1 = obtener_figura(rom, 5670, 36, 70);
 
     moto_t *moto = moto_crear();
     if(moto == NULL) return 1;
 
-    /*
-    for(size_t i = 0; i < CANTIDAD_VALORES_ROMS; i++)
-        printf("%x\n ", rom[i]);
-
-    return 0;
-*/
     imagen_t *teselas[CANTIDAD_TESELAS];
 
     cargar_teselas(teselas);
 
     imagen_t *img_ruta = ruta_cargar_rom();
 
-    //imagen_guardar_ppm(ruta, "prueba.txt", pixel3_a_rgb);
 
     // END código del alumno
 
@@ -76,7 +67,6 @@ int main() {
                 switch(event.key.keysym.sym) {
                     case SDLK_UP:
                         moto_set_acelerar(moto, true);
-                        //mover = true;
                         break;
                     case SDLK_DOWN:
                         moto_set_freno(moto, true);
@@ -95,7 +85,6 @@ int main() {
                 switch(event.key.keysym.sym) {
                     case SDLK_UP:
                         moto_set_acelerar(moto, false);
-                        mover = false;
                         break;
                     case SDLK_DOWN:
                         moto_set_freno(moto, false);
@@ -114,11 +103,6 @@ int main() {
 
         // BEGIN código del alumno
 
-
-
-        desplazamiento_lateral(ul, moto_get_y(moto));
-        desplazamiento_curva(uc, ruta, (int)moto_get_x(moto));
-        desplazamiento_total(uc, ul, ur);
 /*
         printf("y = %f\n",moto_get_y(moto));
         printf("x = %f\n",moto_get_x(moto));
@@ -127,29 +111,24 @@ int main() {
         printf("freno = %d\n", moto_get_freno(moto));
 */
 
-
-
-        imagen_t *cuadro = imagen_generar(320, 224, 0x00f);
-
-        if(mover)
-            x += 2;
-        if(x > 1000)
-            x = -10;
-
         /*fisicas*/
-        tiempo += 1.0/JUEGO_FPS;
 
+        desplazamiento_lateral(ul, moto_get_y(moto));
+        desplazamiento_curva(uc, ruta, (size_t)moto_get_x(moto));
+        desplazamiento_total(uc, ul, ur);
+
+        tiempo += 1.0/JUEGO_FPS;
         moto_computar_fisicas(moto, 1.0/JUEGO_FPS, ruta[(int)moto_get_x(moto)].radio_curva, tiempo);
 
-
-
         /*generacion de fondo*/
+
+        imagen_t *cuadro = imagen_generar(320, 224, 0x00f);
 
         imagen_t *fondo1 = generar_mosaico(teselas, paleta_3, FONDO1_FILAS, FONDO1_COLUMNAS, fondo1_mosaico, fondo1_paleta);
         imagen_t *fondo2 = generar_mosaico(teselas, paleta_3, FONDO2_FILAS, FONDO2_COLUMNAS, fondo2_mosaico, fondo2_paleta);
 
-        imagen_pegar(cuadro, fondo2, /*-20*/ -x*2, 64, false);
-        imagen_pegar(cuadro, fondo1, /*-1126*/-x, 112, false);
+        imagen_pegar(cuadro, fondo2, -20, 64, false);
+        imagen_pegar(cuadro, fondo1, -1126, 112, false);
 
         imagen_destruir(fondo1);
         imagen_destruir(fondo2);
@@ -159,51 +138,26 @@ int main() {
         imagen_pegar(cuadro, pasto, 0, 128, false);
         imagen_destruir(pasto);
 
+        /*Textos*/
+
+        generar_textos_estaticos(cuadro, teselas);
+        generar_textos_variables(cuadro, teselas, moto_get_velocidad(moto), moto_get_puntaje(moto), 20);
+
         /*ruta*/
 
-        //imagen_pegar_con_paleta(cuadro, img_ruta, 100, 20, colores_ruta[0], false);
-        //imagen_t *ruta_transformada = ruta_transformar(ur, ruta, colores_ruta);
-
-        //imagen_pegar(cuadro, ruta_transformada, 0, 128, false);
-
-        //imagen_destruir(ruta_transformada);
-/*
-        static size_t paleta = 0;
-        for(size_t v = 0; v < imagen_get_alto(img_ruta); v++){
-            imagen_pegar_fila_con_paleta(cuadro, img_ruta, ur[v], 223-v, colores_ruta[paleta], 95 - v);
-            paleta++;
-            if(paleta > 3) paleta = 0;
-        }
-*/
-
         ruta_dibujar(cuadro, img_ruta, ur, moto_get_x(moto), ruta);
+        ruta_dibujar_figuras(cuadro, ruta, ur, moto_get_x(moto), rom, paleta_4);
 
         /*moto*/
 
-        //imagen_t *moto1 = obtener_figura(rom, 17215, 60, 54);
         imagen_t *moto1 = moto_get_figura(moto, rom);
         imagen_pegar_con_paleta(cuadro, moto1, moto_dibujado_x(moto), moto_dibujado_y(moto), paleta_4[moto_get_paleta(moto)], false);
         imagen_destruir(moto1);
 
-        //imagen_pegar_con_paleta(cuadro, espejado, 50, 100, paleta_4[2]);
-        //imagen_pegar(cuadro, ruta, -300, 0);
-
-
-        //imagen_t *cuadrado = imagen_generar(10, 10, 0x0f0);
-        //imagen_pegar(cuadro, cuadrado, x, (224 - 10) / 2);
-        //imagen_destruir(cuadrado);
 
         // Procedemos a dibujar a pantalla completa:
         imagen_t *cuadro_escalado = imagen_escalar(cuadro, VENTANA_ANCHO, VENTANA_ALTO);
-        // Hay que implementar esta función que dibuja de forma eficiente:
         imagen_a_textura(cuadro_escalado, canvas);
-        // Como todavía no la tenemos lo hacemos de forma ineficiente con primitivas:
-        /*
-        for(size_t f = 0; f < imagen_get_alto(cuadro_escalado); f++)
-            for(size_t c = 0; c < imagen_get_ancho(cuadro_escalado); c++)
-                canvas[f * imagen_get_ancho(cuadro_escalado) + c] = imagen_get_pixel(cuadro_escalado, c, f);
-        */
-        // Implementar imagen_a_textura() cuanto antes!
 
         imagen_destruir(cuadro_escalado);
         imagen_destruir(cuadro);
@@ -228,7 +182,6 @@ int main() {
     // BEGIN código del alumno
     // No tengo nada que destruir.
     moto_destruir(moto);
-    //imagen_destruir(espejado);
     imagen_destruir(img_ruta);
     liberar_teselas(teselas);
     // END código del alumno
@@ -239,3 +192,6 @@ int main() {
     SDL_Quit();
     return 0;
 }
+
+
+

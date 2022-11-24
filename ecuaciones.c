@@ -9,7 +9,7 @@
 
 double v(double d){
     //TODO podira chquear d por las dudas
-    return (96-96*exp(-0.11*d));
+    return (96.0-96.0*exp(-0.11*d));
 }
 
 /*
@@ -19,7 +19,7 @@ double v(double d){
 
 double d(double v){
 
-    return -(1/0.11)*log(1-(v/96));
+    return -(1.0/0.11)*log(1-(v/96.0));
 }
 
 
@@ -31,7 +31,7 @@ double d(double v){
 
 double escalado_h(double v, unsigned int h0){
 
-    return h0*(1-(v/96)) + (5*v/96);
+    return h0*((96.0-v)/96.0) + (5.0*v/96.0);
 }
 
 /*
@@ -41,7 +41,7 @@ double escalado_h(double v, unsigned int h0){
 */
 
 double escalado_ancho(double v, unsigned int a0){
-    double res =  a0*(1-(v/96)) + (5*v/96);
+    double res =  a0*((96.0-v)/96.0) + (5.0*v/96.0);
 
     return (res < 3)? 3 : res;
 }
@@ -54,9 +54,9 @@ double escalado_ancho(double v, unsigned int a0){
 
 void desplazamiento_lateral(double *ul, double ym){
 
-    for(size_t v = 0; v < POSICIONES_VECTOR; v++)
-        ul[v] = -ym*(1-(v/96*1.0));
-
+    for(size_t v = 0; v < POSICIONES_VECTOR; v++){
+        ul[v] = -ym*((96.0-v)/96.0);
+    }
 }
 
 /*
@@ -76,9 +76,9 @@ void desplazamiento_curva(double *uc, const struct ruta *r, double xm){
 
     uc[0] = 0;
 
-    for(size_t v = 1; v < POSICIONES_VECTOR; v++)
-        uc[v] = uc[v-1] + r[(int)(xm+d(v))].radio_curva*exp(0.105*v-8.6);
-
+    for(size_t v = 1; v < POSICIONES_VECTOR; v++){
+        uc[v] = uc[v-1] + r[(size_t)(xm+d(v))].radio_curva*exp(0.105*v-8.6);
+    }
 }
 
 /*
@@ -92,18 +92,16 @@ void desplazamiento_total(double *uc, double *ul, double *ur){
         ur[v] = uc[v] + ul[v];
     }
 }
-/*
-
-*/
 
 /*
     funcion: u
     Calcula la posicion u de un objeto en funcion del desplazamiento u0
-    , su posicion v y su TODO
+    ,su posicion v y su TODO
 */
-/*
-void u(double yx, double *v, double u0){
 
-    return  yx*(1-(v/96)) + ((u0*v)/5000) + ur
+
+double u(double yx, size_t v, double *ur){
+
+    return  yx*((96.0-v)/96.0) + ((yx*v)/5000.0) + ur[v];
 }
-*/
+

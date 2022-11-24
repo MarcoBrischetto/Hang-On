@@ -15,7 +15,7 @@ int reposo(int intensidad);
 double posicion_y(double posicion, int intensidad);
 double irse_al_pasto(double posicion);
 double giro_de_ruta(double posicion, double r, double velocidad, double t);
-double puntaje(double velocidad, double tiempo, double puntaje, double posicion);
+double puntaje(double velocidad, double tiempo, double puntaje, double posicion, double y);
 bool ganar(double posicion);
 bool perder(double t_total);
 

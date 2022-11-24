@@ -1,5 +1,6 @@
 #include "figura.h"
 #include <stdio.h>
+
 /*
 const char tabla_roms[][]{
 
@@ -8,6 +9,14 @@ const char tabla_roms[][]{
 };
 */
 
+const struct figura_sprite tabla_figuras[] = {
+    [ARBOL] =   {50116, 46, 188},
+    [CARTEL] =  {37390, 96, 112},
+    [ROCA] =    {69464, 136, 76},
+    [DELFIN] =  {119280, 144, 110},
+    [BELL] =    {82922, 63, 146},
+    [FORUM] =   {89102, 118, 114}
+};
 
 /*
     funcion: cargar_par_rom

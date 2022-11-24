@@ -144,7 +144,7 @@ double moto_dibujado_y(moto_t *moto){
 }
 
 
-void moto_computar_fisicas(moto_t *moto, double tiempo, double r, double tiempo_total){
+void moto_computar_fisicas(moto_t *moto, double tiempo, double radio_curva, double tiempo_total){
 
     moto->x += posicion_x(moto->velocidad, tiempo);
 
@@ -176,9 +176,11 @@ void moto_computar_fisicas(moto_t *moto, double tiempo, double r, double tiempo_
 
     moto->y = irse_al_pasto(moto->y);
 
-    moto->y = giro_de_ruta(moto->y, r, moto->velocidad, tiempo);
+    moto->y = giro_de_ruta(moto->y, radio_curva, moto->velocidad, tiempo);
 
-    moto->puntaje = puntaje(moto->velocidad, tiempo, moto->puntaje, moto->x);
+    /*puntuacion*/
+
+    moto->puntaje = puntaje(moto->velocidad, tiempo, moto->puntaje, moto->x, moto->y);
 
     moto->ganar = ganar(moto->x);
 

@@ -12,7 +12,7 @@ double escalado_ancho(double v, unsigned int a0);
 void desplazamiento_lateral(double *ul, double ym);
 void desplazamiento_curva(double *uc, const struct ruta *r, double xm);
 void desplazamiento_total(double *uc, double *ul, double *ur);
-double u(double yx, double v, double u0);
+double u(double yx, size_t v, double *ur);
 
 
 #endif

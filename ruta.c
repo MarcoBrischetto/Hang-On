@@ -1,6 +1,7 @@
 #include "ruta.h"
 #include "stdio.h"
 #include "ecuaciones.h"
+#include "figura.h"
 
 const struct figura_en_ruta figuras_en_ruta[] = {
     {ARBOL, 38, -300, 0},
@@ -4340,11 +4341,11 @@ static void ruta_transparentar(imagen_t *ruta){
 
 static imagen_t *ruta_completar(imagen_t *ruta){
 
-    imagen_t *ruta_completa = imagen_generar(imagen_get_ancho(ruta) + 100, ALTO_RECORTADO_RUTA, 0);
+    imagen_t *ruta_completa = imagen_generar(imagen_get_ancho(ruta), ALTO_RECORTADO_RUTA, 0);
     if(ruta_completa == NULL) return NULL;
 
-    imagen_pegar(ruta_completa, ruta, -286/*-346*/, -16, false);
-    imagen_pegar(ruta_completa, ruta, /*158*/218, -16, true);
+    imagen_pegar(ruta_completa, ruta, -346 + COMPENSACION_RECORTE_RUTA, -16, false);
+    imagen_pegar(ruta_completa, ruta, 158 + COMPENSACION_RECORTE_RUTA, -16, true);
 
     return ruta_completa;
 }
@@ -4404,36 +4405,10 @@ imagen_t *ruta_cargar_rom(){
 
 }
 /*
-    funcion: ruta _transformar
-    devuelve una imagen de la ruta con el desplazamiento
-    aplicado ur
+    funcion: ruta_dibujar
+    dibuja la ruta en su posicion indicada, aplicando la paleta y los
+    desplazamientos pertinentes
 */
-imagen_t *ruta_transformar(double *ur, imagen_t *ruta, const pixel_t paletas[][16]){
-
-    imagen_t *ruta_transformada = imagen_generar(imagen_get_ancho(ruta), imagen_get_alto(ruta), 0);
-
-    if(ruta_transformada == NULL) return NULL;
-
-    //static size_t paleta = 0;
-
-    //double distancia_anterior = 0;
-
-    for(size_t v = 0; v < /*imagen_get_alto(ruta)*/ 90; v++){
-
-        imagen_pegar_fila_con_paleta(ruta_transformada, ruta, 20, v, paletas[1], v);
-
-        /*
-        double distancia_actual = d(v);
-        if(distancia_actual - distancia_anterior >= 1){
-            distancia_anterior = distancia_actual;
-            paleta++;
-        }
-
-        //if(paleta > 3) paleta = 0;*/
-    }
-
-    return ruta_transformada;
-}
 
 void ruta_dibujar(imagen_t *cuadro, imagen_t *ruta, double *ur, double xm, const struct ruta *r){
 
@@ -4445,7 +4420,7 @@ void ruta_dibujar(imagen_t *cuadro, imagen_t *ruta, double *ur, double xm, const
     size_t primera_paleta = paleta;
 
     for(size_t v = 0; v < imagen_get_alto(ruta); v++){
-        imagen_pegar_fila_con_paleta(cuadro, ruta, ur[v], 223-v, colores_ruta[paleta], 95 - v);
+        imagen_pegar_fila_con_paleta(cuadro, ruta, ur[v] + COMPENSACION_CENTRO_RUTA, 223-v, colores_ruta[paleta], 95 - v);
 
         cnt += d(v);
 
@@ -4458,5 +4433,46 @@ void ruta_dibujar(imagen_t *cuadro, imagen_t *ruta, double *ur, double xm, const
     }
 
     paleta = primera_paleta;
+
+}
+
+void ruta_dibujar_figuras(imagen_t *cuadro, const struct ruta *ruta, double *ur, double x, uint16_t rom[CANTIDAD_VALORES_ROMS], const pixel_t paleta[][16]){
+
+    for(size_t d = 0; d < CAMPO_VISION; d++){
+
+        size_t indice = ruta[(size_t)x + d].indice_figura;
+
+        if(indice == NO_FIG) continue;
+
+        enum figura fig = figuras_en_ruta[indice].figura;
+
+        imagen_t *img_fig = obtener_figura(rom, tabla_figuras[fig].pos, tabla_figuras[fig].ancho, tabla_figuras[fig].alto);
+
+        if(img_fig == NULL) continue;
+
+        double alto_escalado = escalado_h(v(d), tabla_figuras[fig].alto);
+        double ancho_escalado = escalado_ancho(v(d), tabla_figuras[fig].ancho);
+
+        imagen_t *img_fig_escalada = imagen_escalar(img_fig, ancho_escalado, alto_escalado);
+
+        if(img_fig_escalada == NULL){
+            imagen_destruir(img_fig);
+            continue;
+        }
+
+        imagen_destruir(img_fig);
+
+        size_t idx_paleta = figuras_en_ruta[indice].paleta;
+        int yx = figuras_en_ruta[indice].y;
+        bool reflejar = figuras_en_ruta[indice].reflejar;
+
+        double pos_u = u(yx, v(d), ur) + 162 - ancho_escalado/2;
+        double pos_v = 223 - v(d) - alto_escalado;
+
+        imagen_pegar_con_paleta(cuadro, img_fig_escalada, pos_u, pos_v, paleta[idx_paleta], reflejar);
+
+        imagen_destruir(img_fig_escalada);
+
+    }
 
 }

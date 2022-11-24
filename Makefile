@@ -5,8 +5,8 @@ DEBUG=-g
 
 all: hangon
 
-hangon: main.o fondo.o paleta.o imagen.o pixel.o ruta.o figura.o teselas.o moto.o ecuaciones.o
-	$(CC) $(LFLAGS) $(DEBUG) -o hangon main.o fondo.o paleta.o imagen.o pixel.o ruta.o figura.o teselas.o moto.o ecuaciones.o
+hangon: main.o fondo.o paleta.o imagen.o pixel.o ruta.o figura.o teselas.o moto.o ecuaciones.o fisica.o textos.o
+	$(CC) $(LFLAGS) $(DEBUG) -o hangon main.o fondo.o paleta.o imagen.o pixel.o ruta.o figura.o teselas.o moto.o ecuaciones.o fisica.o textos.o
 
 main.o: main.c config.h imagen.h
 	$(CC) $(CFLAGS) $(DEBUG) -o main.o main.c
@@ -37,6 +37,12 @@ moto.o: moto.c moto.h imagen.h
 
 ecuaciones.o: ecuaciones.c ecuaciones.h
 	$(CC) $(CFLAGS) $(DEBUG) -o ecuaciones.o ecuaciones.c
+
+fisica.o: fisica.c fisica.h
+	$(CC) $(CFLAGS) $(DEBUG) -o fisica.o fisica.c
+
+textos.o: textos.c textos.h
+	$(CC) $(CFLAGS) $(DEBUG) -o textos.o textos.c
 
 paleta.h: pixel.h
 

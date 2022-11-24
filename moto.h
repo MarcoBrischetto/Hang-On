@@ -15,7 +15,7 @@ imagen_t *moto_get_figura(moto_t *moto, uint16_t *rom);
 double moto_dibujado_x(moto_t *moto);
 double moto_dibujado_y(moto_t *moto);
 
-void moto_computar_fisicas(moto_t *moto, double tiempo, double r, double tiempo_total);
+void moto_computar_fisicas(moto_t *moto, double tiempo, double radio_curva, double tiempo_total);
 
 /*getters*/
 double moto_get_velocidad(moto_t *moto);

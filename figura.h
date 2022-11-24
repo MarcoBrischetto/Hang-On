@@ -30,6 +30,18 @@
 #define ROM_6845    "roms/6845.rom"
 #define ROM_6846    "roms/6846.rom"
 
+enum figura{
+    ARBOL, CARTEL, ROCA, BELL, FORUM, DELFIN, SEMAFORO, BANNER, VIGA, NO_FIG = 9999
+};
+
+struct figura_sprite {
+    size_t pos;
+    size_t ancho;
+    size_t alto;
+};
+
+extern const struct figura_sprite tabla_figuras[];
+
 bool cargar_figuras_rom(uint16_t rom[CANTIDAD_VALORES_ROMS]);
 imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t ancho, size_t alto);
 

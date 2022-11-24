@@ -85,9 +85,9 @@ double giro_de_ruta(double posicion, double r, double velocidad, double t){
     return posicion - 2.5*posicion_x(velocidad,t)*r;
 }
 
-double puntaje(double velocidad, double tiempo, double puntaje, double posicion){
-    if(velocidad > 92 && abs(posicion) > 215) return puntaje + 0;
-    if(velocidad < 117) return  puntaje + 125*posicion_x( velocidad, tiempo);
+double puntaje(double velocidad, double tiempo, double puntaje, double posicion, double y){
+    if(/*velocidad > 92 &&*/ abs(y) > 215) return puntaje;
+    if(velocidad < 117) return  puntaje + 125*posicion_x(velocidad, tiempo);
 
     return  puntaje + posicion_x(velocidad, tiempo)*(3.13*velocidad - 240);
 

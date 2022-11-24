@@ -82,7 +82,7 @@ bool leer_teselas(imagen_t *teselas[]){
 }
 
 /*
-    funcion: generar_mosaicos
+    funcion: generar_mosaico
     crea un mosaico a partir de un vector de teselas y paletas
 */
 
