@@ -4292,7 +4292,7 @@ const struct ruta ruta[4200 + 70] = {
     {0.0000000, 9999},
     {0.0000000, 9999},
 };
-                        //[4][4]
+
 const pixel_t colores_ruta[][16] = {
     // columnas: Asfalto, líneas laterales, color lateral, franja del medio
    /*
@@ -4308,11 +4308,6 @@ const pixel_t colores_ruta[][16] = {
     {0, 0, 0, 0, 0x566, 0x566, 0, 0xfff, 0, 0, 0 , 0, 0xb00, 0xb00, 0, 0x566},
     {0, 0, 0, 0, 0x566, 0x566, 0, 0xfff, 0, 0, 0 , 0, 0xfff, 0xfff, 0, 0x566}
 };
-
-/*
-    TODO podria hacer un vector de imagenes con cada fila y capaz seria mas facil
-        para poder desplazar despues
-*/
 
 
 /*
@@ -4412,33 +4407,25 @@ imagen_t *ruta_cargar_rom(){
 
 void ruta_dibujar(imagen_t *cuadro, imagen_t *ruta, double *ur, double xm, const struct ruta *r){
 
-    static size_t paleta = 0;
-    static double cnt = 0;
-
-    cnt += xm;
-
-    size_t primera_paleta = paleta;
+    size_t paleta = ((int)xm % 16)/4.0;
 
     for(size_t v = 0; v < imagen_get_alto(ruta); v++){
-        imagen_pegar_fila_con_paleta(cuadro, ruta, ur[v] + COMPENSACION_CENTRO_RUTA, 223-v, colores_ruta[paleta], 95 - v);
-
-        cnt += d(v);
-
-        if((int)(cnt) % 4 == 0){
-            cnt = 0;
-            paleta++;
-        }
-
-        if(paleta > 3) paleta = 0;
+        imagen_pegar_fila_con_paleta(cuadro, ruta, ur[v] + COMPENSACION_CENTRO_RUTA, V-v, colores_ruta[paleta], 95 - v);
+        paleta = (int)(d(v)+xm) % 4;
     }
-
-    paleta = primera_paleta;
 
 }
 
+
+/*
+    funcion: ruta_dibujar_figuras
+    dibuja todas las figuras en la ruta hasta donde llegue el campo de vision, escalandola segun corresponda y aplicando
+    los desplazamientos indicados por la ruta.
+*/
+
 void ruta_dibujar_figuras(imagen_t *cuadro, const struct ruta *ruta, double *ur, double x, uint16_t rom[CANTIDAD_VALORES_ROMS], const pixel_t paleta[][16]){
 
-    for(size_t d = 0; d < CAMPO_VISION; d++){
+    for(size_t d = CAMPO_VISION; d > 0 ; d--){
 
         size_t indice = ruta[(size_t)x + d].indice_figura;
 
@@ -4466,8 +4453,8 @@ void ruta_dibujar_figuras(imagen_t *cuadro, const struct ruta *ruta, double *ur,
         int yx = figuras_en_ruta[indice].y;
         bool reflejar = figuras_en_ruta[indice].reflejar;
 
-        double pos_u = u(yx, v(d), ur) + 162 - ancho_escalado/2;
-        double pos_v = 223 - v(d) - alto_escalado;
+        double pos_u = u(yx, v(d), ur) + U - ancho_escalado/2;
+        double pos_v = V - v(d) - alto_escalado;
 
         imagen_pegar_con_paleta(cuadro, img_fig_escalada, pos_u, pos_v, paleta[idx_paleta], reflejar);
 

@@ -4,6 +4,8 @@
 #include "imagen.h"
 #include "paleta.h"
 
+/*TODO hacer tabla de busqueda para los textos*/
+
 const uint16_t top_mosaico[TOP_FILAS][TOP_COLUMNAS] = {
     {0x94, 0x95, 0x95, 0x95, 0x96},
     {0x97, 0x98, 0x99, 0x9a, 0x9b},
@@ -61,6 +63,19 @@ const uint8_t goal_paleta[GOAL_FILAS][GOAL_COLUMNAS] = {
     {5, 5, 5, 5, 5, 5, 5, 5}
 };
 
+const uint16_t numeros_mosaico[10][2] = {
+    {0x80, 0x81}, //0
+    {0x82, 0x83}, //1
+    {0x84, 0x85}, //2
+    {0x86, 0x87}, //3
+    {0x88, 0x89}, //...
+    {0x8a, 0x8b},
+    {0x8c, 0x8d},
+    {0x8e, 0x8f},
+    {0x90, 0x91},
+    {0x92, 0x93}
+};
+
 
 void escribir_texto(imagen_t *cuadro, char *s, imagen_t *teselas[], size_t x, size_t y, const pixel_t paleta[]){
 
@@ -69,7 +84,7 @@ void escribir_texto(imagen_t *cuadro, char *s, imagen_t *teselas[], size_t x, si
 
 }
 
-void escribir_texto_alineacion_derecha(imagen_t *cuadro, char *s, imagen_t *teselas[], size_t x, size_t y, const pixel_t paleta[]){
+void escribir_texto_alineacion_derecha(imagen_t *cuadro, char *s, imagen_t *teselas[],size_t x, size_t y, const pixel_t paleta[]){
 
     size_t len = strlen(s);
 
@@ -79,17 +94,41 @@ void escribir_texto_alineacion_derecha(imagen_t *cuadro, char *s, imagen_t *tese
 
 }
 
+/* TODO mejorar implementacion*/
+static void escribir_numeros(imagen_t *cuadro, int num, imagen_t *teselas[], const uint16_t mosaico_teselas[][2],size_t x, size_t y, const pixel_t paleta[]){
+
+    char str[MAX_STR];
+
+    sprintf(str, "%d", num);
+
+    if(strlen(str) < 2){
+        for(size_t i = 0; i < 2; i++)
+            imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)mosaico_teselas[0][i]], x, y + i * ALTO_TESELA, paleta, false);
+
+        x+= ANCHO_TESELA;
+    }
+
+    for(size_t i = 0; str[i] != '\0'; i++){
+        for(size_t j = 0; j < 2; j++)
+            imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)mosaico_teselas[str[i] - 0x30][j]], x + i * ANCHO_TESELA, y + j * ALTO_TESELA, paleta, false);
+    }
+
+}
+
 void generar_textos_variables(imagen_t *cuadro, imagen_t *teselas[], int velocidad, int puntaje, int tiempo_restante){
     char aux[MAX_STR];
 
     sprintf(aux, "%d", velocidad);
     escribir_texto_alineacion_derecha(cuadro, aux, teselas, 272, 24, paleta_3[6]);
-    sprintf(aux, "%d", puntaje);
 
+    sprintf(aux, "%d", puntaje);
     escribir_texto_alineacion_derecha(cuadro, aux, teselas, 304, 8, paleta_3[7]);
-    //escribir_texto_alineacion_derecha(cuadro, "1", teselas, 72, 24, paleta_3[6]);
+
+    escribir_numeros(cuadro, tiempo_restante, teselas, numeros_mosaico, 144, 24, paleta_3[5]);
 
 }
+
+/*TODO Revisar*/
 
 enum textos{
     TOP, TIME, SCORE, TOP_NUM ,STAGE, STAGE_NUM, KM, VELOCIDAD, PUNTAJE
@@ -111,14 +150,15 @@ texto_t lista_textos[] = {
 
 };
 
+
 void generar_textos_estaticos(imagen_t *cuadro, imagen_t *teselas[]){
 
     /*TODO hacerlo iterativo*/
-/*
+
     imagen_t *top = generar_mosaico(teselas, paleta_3, TOP_FILAS, TOP_COLUMNAS, top_mosaico, top_paleta);
     imagen_pegar(cuadro, top, 16, 0, false);
     imagen_destruir(top);
-*/
+
     /*
     size_t i = 0;
     imagen_t *txt = generar_mosaico(teselas, paleta_3, lista_textos[i].filas, lista_textos[i].columnas, (const uint16_t (*)[lista_textos[i].columnas])lista_textos[i].mosaico, (const uint8_t (*)[lista_textos[i].columnas])lista_textos[i].paleta);
@@ -152,4 +192,14 @@ void generar_textos_estaticos(imagen_t *cuadro, imagen_t *teselas[]){
     imagen_destruir(goal);
 */
 }
+/*
+void escribir_ganar(){
+    imagen_t *game_over = generar_mosaico(teselas, paleta_3, GAME_OVER_FILAS, GAME_OVER_COLUMNAS, game_over_mosaico, game_over_paleta);
+    imagen_pegar(cuadro, game_over, 80, 10, false);
+    imagen_destruir(game_over);
+}
 
+void escribir_perder(){
+
+
+}*/

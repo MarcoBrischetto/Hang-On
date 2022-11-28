@@ -13,13 +13,14 @@
 
 #define ALTO_RECORTADO_RUTA    96
 
+
 /*como en el pegado de la ruta, la imagen quedaba recortada
  hice una compensacion para evitar partes de la ruta sin dibujar
  */
 #define COMPENSACION_CENTRO_RUTA -60
 #define COMPENSACION_RECORTE_RUTA 60
 
-#define CAMPO_VISION 70
+#define CAMPO_VISION 60
 
 struct figura_en_ruta {
     enum figura figura;     // Se deja libertad para definir esto como un enum donde corresponda

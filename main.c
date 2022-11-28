@@ -13,9 +13,8 @@
 #include "moto.h"
 #include "ecuaciones.h"
 #include "textos.h"
+#include "fisica.h"
 
-void generar_textos_estaticos(imagen_t *cuadro, imagen_t *teselas[]);
-void generar_textos_variables(imagen_t *cuadro, imagen_t *teselas[], int velocidad, int puntaje, int tiempo_restante);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -34,12 +33,19 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    double tiempo = 0;
+    double tiempo_restante = 100;
+    double tiempo_total = 0;
+    double temporizador = 0;
+    double posicion_moto_anterior;
+
+    double fondo1_x = FONDO_X_INICIAL;
+    double fondo2_x = FONDO_X_INICIAL;
 
     double ul[POSICIONES_VECTOR];
     double uc[POSICIONES_VECTOR];
     double ur[POSICIONES_VECTOR];
 
+    /*TODO hacer chequeos de inicializacion*/
     uint16_t rom[CANTIDAD_VALORES_ROMS];
     if(cargar_figuras_rom(rom) == false) return 1;
 
@@ -103,32 +109,49 @@ int main() {
 
         // BEGIN código del alumno
 
-/*
-        printf("y = %f\n",moto_get_y(moto));
-        printf("x = %f\n",moto_get_x(moto));
-        printf("vel = %f\n\n ",moto_get_velocidad(moto));
-        printf("acelerar = %d\n", moto_get_acelerar(moto));
-        printf("freno = %d\n", moto_get_freno(moto));
-*/
+        if(moto_get_ganar(moto) || moto_get_perder(moto)){
+            continue;
+        }
 
         /*fisicas*/
+
+        posicion_moto_anterior = moto_get_x(moto);
 
         desplazamiento_lateral(ul, moto_get_y(moto));
         desplazamiento_curva(uc, ruta, (size_t)moto_get_x(moto));
         desplazamiento_total(uc, ul, ur);
 
-        tiempo += 1.0/JUEGO_FPS;
-        moto_computar_fisicas(moto, 1.0/JUEGO_FPS, ruta[(int)moto_get_x(moto)].radio_curva, tiempo);
+        tiempo_restante -= 1.0/JUEGO_FPS;
+        tiempo_total += 1.0/JUEGO_FPS;
+
+        moto_computar_fisicas(moto, 1.0/JUEGO_FPS, tiempo_restante, ruta, ur);
+
+        /*Choques*/
+
+        if(tiempo_total - temporizador > TIEMPO_CHOQUE && moto_get_choque(moto)){
+            temporizador = tiempo_total;
+            moto_set_choque(moto, false);
+        }
+
+        if(!moto_get_choque(moto)) temporizador = tiempo_total;
 
         /*generacion de fondo*/
+
+        if(fondo1_x > FONDO_X_INICIAL){
+            fondo1_x = -1728;
+            fondo2_x = -1728;
+        }
+
+        fondo2_x -= desplazamiento_fondo(moto_get_x(moto), posicion_moto_anterior, ruta);
+        fondo1_x -= 0.75*desplazamiento_fondo(moto_get_x(moto), posicion_moto_anterior, ruta);
 
         imagen_t *cuadro = imagen_generar(320, 224, 0x00f);
 
         imagen_t *fondo1 = generar_mosaico(teselas, paleta_3, FONDO1_FILAS, FONDO1_COLUMNAS, fondo1_mosaico, fondo1_paleta);
         imagen_t *fondo2 = generar_mosaico(teselas, paleta_3, FONDO2_FILAS, FONDO2_COLUMNAS, fondo2_mosaico, fondo2_paleta);
 
-        imagen_pegar(cuadro, fondo2, -20, 64, false);
-        imagen_pegar(cuadro, fondo1, -1126, 112, false);
+        imagen_pegar(cuadro, fondo2, fondo1_x, FONDO1_Y, false);
+        imagen_pegar(cuadro, fondo1, fondo2_x, FONDO2_Y, false);
 
         imagen_destruir(fondo1);
         imagen_destruir(fondo2);
@@ -138,10 +161,6 @@ int main() {
         imagen_pegar(cuadro, pasto, 0, 128, false);
         imagen_destruir(pasto);
 
-        /*Textos*/
-
-        generar_textos_estaticos(cuadro, teselas);
-        generar_textos_variables(cuadro, teselas, moto_get_velocidad(moto), moto_get_puntaje(moto), 20);
 
         /*ruta*/
 
@@ -153,6 +172,23 @@ int main() {
         imagen_t *moto1 = moto_get_figura(moto, rom);
         imagen_pegar_con_paleta(cuadro, moto1, moto_dibujado_x(moto), moto_dibujado_y(moto), paleta_4[moto_get_paleta(moto)], false);
         imagen_destruir(moto1);
+
+        /*Textos*/
+
+        generar_textos_estaticos(cuadro, teselas);
+        generar_textos_variables(cuadro, teselas, moto_get_velocidad(moto), moto_get_puntaje(moto), tiempo_restante);
+
+        if(moto_get_perder(moto)){
+            imagen_t *game_over = generar_mosaico(teselas, paleta_3, GAME_OVER_FILAS, GAME_OVER_COLUMNAS, game_over_mosaico, game_over_paleta);
+            imagen_pegar(cuadro, game_over, 96, 56, false);
+            imagen_destruir(game_over);
+        }
+
+        if(/*moto_get_ganar(moto)*/1){
+            imagen_t *goal = obtener_figura(rom, tabla_figuras[GOAL].pos, tabla_figuras[GOAL].ancho, tabla_figuras[GOAL].alto);
+            imagen_pegar_con_paleta(cuadro, goal, 96, 56, paleta_4[28], false);
+            imagen_destruir(goal);
+        }
 
 
         // Procedemos a dibujar a pantalla completa:
@@ -179,8 +215,7 @@ int main() {
         ticks = SDL_GetTicks();
     }
 
-    // BEGIN código del alumno
-    // No tengo nada que destruir.
+    // BEGIN código del alumnos
     moto_destruir(moto);
     imagen_destruir(img_ruta);
     liberar_teselas(teselas);

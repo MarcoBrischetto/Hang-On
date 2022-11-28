@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "imagen.h"
 #include "figura.h"
+#include "ruta.h"
 
 typedef struct moto moto_t;
 
@@ -15,7 +16,7 @@ imagen_t *moto_get_figura(moto_t *moto, uint16_t *rom);
 double moto_dibujado_x(moto_t *moto);
 double moto_dibujado_y(moto_t *moto);
 
-void moto_computar_fisicas(moto_t *moto, double tiempo, double radio_curva, double tiempo_total);
+void moto_computar_fisicas(moto_t *moto, double tiempo, double tiempo_total, const struct ruta *ruta, double *ur);
 
 /*getters*/
 double moto_get_velocidad(moto_t *moto);
@@ -28,7 +29,7 @@ bool moto_get_freno(moto_t *moto);
 bool moto_get_acelerar(moto_t *moto);
 bool moto_get_der(moto_t *moto);
 bool moto_get_izq(moto_t *moto);
-bool moto_get_colision(moto_t *moto);
+bool moto_get_choque(moto_t *moto);
 double moto_get_puntaje(moto_t *moto);
 bool moto_get_ganar();
 bool moto_get_perder();
@@ -43,7 +44,7 @@ void moto_set_freno(moto_t *moto, bool freno);
 void moto_set_acelerar(moto_t *moto, bool acelerar);
 void moto_set_der(moto_t *moto, bool der);
 void moto_set_izq(moto_t *moto, bool izq);
-void moto_set_colision(moto_t *moto, bool colision);
+void moto_set_choque(moto_t *moto, bool choque);
 void moto_set_puntaje(moto_t *moto, double puntaje);
 
 

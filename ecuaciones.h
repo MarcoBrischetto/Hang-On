@@ -5,6 +5,10 @@
 
 #define POSICIONES_VECTOR 96
 
+/*Posiciones de los ejes en la pantalla*/
+#define U   162
+#define V   223
+
 double v(double d);
 double d(double v);
 double escalado_h(double v, unsigned int h0);

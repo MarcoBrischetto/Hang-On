@@ -31,7 +31,7 @@
 #define ROM_6846    "roms/6846.rom"
 
 enum figura{
-    ARBOL, CARTEL, ROCA, BELL, FORUM, DELFIN, SEMAFORO, BANNER, VIGA, NO_FIG = 9999
+    ARBOL, CARTEL, ROCA, BELL, FORUM, DELFIN, SEMAFORO, BANNER, VIGA, GOAL, NO_FIG = 9999
 };
 
 struct figura_sprite {

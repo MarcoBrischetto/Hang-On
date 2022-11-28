@@ -40,4 +40,6 @@ extern const uint8_t goal_paleta[GOAL_FILAS][GOAL_COLUMNAS];
 void escribir_texto(imagen_t *cuadro, char *s, imagen_t *teselas[], size_t x, size_t y, const pixel_t paleta[]);
 void escribir_texto_alineacion_derecha(imagen_t *cuadro, char *s, imagen_t *teselas[], size_t x, size_t y, const pixel_t paleta[]);
 
+void generar_textos_estaticos(imagen_t *cuadro, imagen_t *teselas[]);
+void generar_textos_variables(imagen_t *cuadro, imagen_t *teselas[], int velocidad, int puntaje, int tiempo_restante);
 #endif

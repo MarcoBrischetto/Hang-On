@@ -15,11 +15,8 @@ double posicion_x(double velocidad, double t){
 }
 
 double aceleracion(double velocidad, double t){
-    //if(velocidad == 0) velocidad = 1;
 
      return (279 - (279 - velocidad) * exp(-0.224358*t));
-
-    //return velocidad + 1;
 }
 
 double frenado(double velocidad, double t){
@@ -99,13 +96,15 @@ bool ganar(double posicion){
 }
 
 bool perder(double t_total){
-    if(t_total >= 75) return true;
+    if(t_total <= 0) return true;
     return false;
 }
 
-/*
-static bool choque(){
+bool choque(double yx, double ym, double ancho){
 
+    if(ym > yx-(ancho/2.0) && ym < yx+(ancho/2.0))
+        return true;
 
+    return false;
 }
-*/
+

@@ -13,9 +13,15 @@ const struct figura_sprite tabla_figuras[] = {
     [ARBOL] =   {50116, 46, 188},
     [CARTEL] =  {37390, 96, 112},
     [ROCA] =    {69464, 136, 76},
-    [DELFIN] =  {119280, 144, 110},
     [BELL] =    {82922, 63, 146},
-    [FORUM] =   {89102, 118, 114}
+    [FORUM] =   {89102, 118, 114},
+    [DELFIN] =  {119280, 144, 110},
+    [SEMAFORO] = {0,0,0},
+    [BANNER] = {0,0,0},
+    [VIGA] = {0,0,0},
+    [GOAL]  =   {194556, 140, 47}, //141 48
+    [NO_FIG] = {0,0,0}
+
 };
 
 /*
@@ -96,16 +102,11 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
 
     size_t f = 0, c = 0;
 
-    for(size_t i = pos; i < pos + (ancho*alto)/4 - ancho/4; i++){
+    for(size_t i = pos; i < pos + (ancho*alto-ancho)/4; i++){
 
         if(c >= ancho) c = 0;
 
         //mientras sea nueva linea y sea 0xf, saltea
-
-        /*
-        if(nueva_linea && ((rom[i] & 0xf) == 0xf)){
-            continue;
-        }*/
 
         if(nueva_linea && ((rom[i] & 0xf) == 0xf))
             continue;

@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define TIEMPO_CHOQUE 5
+
 double posicion_x(double velocidad, double t);
 double aceleracion(double velocidad, double t);
 double frenado(double velocidad, double t);
@@ -18,5 +20,7 @@ double giro_de_ruta(double posicion, double r, double velocidad, double t);
 double puntaje(double velocidad, double tiempo, double puntaje, double posicion, double y);
 bool ganar(double posicion);
 bool perder(double t_total);
+bool choque(double yx, double ym, double ancho);
+//bool choque(double u, double ancho);
 
 #endif

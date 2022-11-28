@@ -54,3 +54,20 @@ imagen_t *generar_pasto(){
     return pasto_estirado;
 }
 
+
+/*
+    funcion: desplazamiento_fondo
+    Devuelve cuanto se debe desplazar el fondo segun el radio de giro
+*/
+
+int desplazamiento_fondo(int xm, int xm_anterior, const struct ruta *r){
+
+    int res = 0;
+
+    for(size_t i = xm_anterior; i < xm; i++){
+        res += r[i].radio_curva;
+    }
+
+    return res;
+}
+

@@ -1,7 +1,10 @@
 #include "moto.h"
 #include <stdlib.h>
+#include <math.h>
 #include "fisica.h"
-#include "math.h"
+#include "ecuaciones.h"
+
+//#include "ruta"
 
 /*
     TODO:  -la moto misma va a devolver que hay que dibujar
@@ -38,7 +41,7 @@ struct moto {
     bool derecha;       //girando?
     bool izquierda;
     int intensidad;    //nivel de giro en ese instante de -3 a 3, negativo es izquierda
-    bool colision;      // la moto colisiono con algo?
+    bool choque;      // la moto colisiono con algo?
     double puntaje;
     bool morder;
     bool ganar;
@@ -76,7 +79,7 @@ moto_t *moto_crear(){
     moto->derecha = false;
     moto->izquierda = false;
     moto->intensidad = 0;
-    moto->colision = 0;
+    moto->choque = 0;
     moto->morder = false;
     moto->ganar = false;
     moto->perder = false;
@@ -143,8 +146,66 @@ double moto_dibujado_y(moto_t *moto){
     return tabla_sprites[abs(moto->intensidad)].dibujado_y;
 }
 
+// static bool calcular_choques(const struct ruta *ruta, double *ur, double x, double t){
+//
+//     bool flag_choque;
+//
+//     //solamente chequeo los que estan a distancia 77.5*t+1
+//
+//     for(size_t d = 0; d < 77.5*t+1; d++){
+//
+//         size_t indice = ruta[(size_t)x + d].indice_figura;
+//
+//         if(indice == NO_FIG) continue;
+//
+//         enum figura fig = figuras_en_ruta[indice].figura;
+//
+//         int yx = figuras_en_ruta[indice].y;
+//
+//         //Si u esta entre las mitades de los anchos, es choque
+//         double pos_u = u(yx, v(d), ur);
+//
+//         flag_choque = choque(pos_u, tabla_figuras[fig].ancho);
+//
+//     }
+//
+//     return flag_choque;
+//
+// }
 
-void moto_computar_fisicas(moto_t *moto, double tiempo, double radio_curva, double tiempo_total){
+static bool calcular_choques(const struct ruta *ruta, double x, double t, double ym){
+
+    bool flag_choque;
+
+    //solamente chequeo los que estan a distancia 77.5*t+1
+
+    for(size_t d = 0; d < 77.5*t+1; d++){
+
+        size_t indice = ruta[(size_t)x + d].indice_figura;
+
+        if(indice == NO_FIG) continue;
+
+        enum figura fig = figuras_en_ruta[indice].figura;
+
+        int yx = figuras_en_ruta[indice].y;
+
+        flag_choque = choque(yx, ym,tabla_figuras[fig].ancho);
+
+    }
+
+    return flag_choque;
+
+}
+
+void moto_computar_fisicas(moto_t *moto, double tiempo, double tiempo_total, const struct ruta *ruta, double *ur){
+
+    if(moto->choque){
+        moto->velocidad = 0;
+        moto->y = 0;
+        return;
+    }
+
+    moto->choque = calcular_choques(ruta, moto->x, tiempo, moto->y);
 
     moto->x += posicion_x(moto->velocidad, tiempo);
 
@@ -176,7 +237,7 @@ void moto_computar_fisicas(moto_t *moto, double tiempo, double radio_curva, doub
 
     moto->y = irse_al_pasto(moto->y);
 
-    moto->y = giro_de_ruta(moto->y, radio_curva, moto->velocidad, tiempo);
+    moto->y = giro_de_ruta(moto->y, ruta[(int)moto->x].radio_curva, moto->velocidad, tiempo);
 
     /*puntuacion*/
 
@@ -186,8 +247,8 @@ void moto_computar_fisicas(moto_t *moto, double tiempo, double radio_curva, doub
 
     moto->perder = perder(tiempo_total);
 
-}
 
+}
 
 void moto_destruir(moto_t *moto){
     free(moto);
@@ -226,8 +287,8 @@ bool moto_get_izq(moto_t *moto){
     return moto->izquierda;
 }
 
-bool moto_get_colision(moto_t *moto){
-    return moto->colision;
+bool moto_get_choque(moto_t *moto){
+    return moto->choque;
 }
 
 double moto_get_puntaje(moto_t *moto){
@@ -282,9 +343,8 @@ void moto_set_izq(moto_t *moto, bool izq){
     moto->izquierda = izq;
 }
 
-void moto_set_colision(moto_t *moto, bool colision){
-    /*TODO modificar segun sea necesario*/
-    moto->colision = colision;
+void moto_set_choque(moto_t *moto, bool choque){
+    moto->choque = choque;
 }
 
 void moto_set_puntaje(moto_t *moto, double puntaje){
