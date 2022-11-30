@@ -31,8 +31,9 @@ bool moto_get_der(moto_t *moto);
 bool moto_get_izq(moto_t *moto);
 bool moto_get_choque(moto_t *moto);
 double moto_get_puntaje(moto_t *moto);
-bool moto_get_ganar();
-bool moto_get_perder();
+bool moto_get_ganar(moto_t *moto);
+bool moto_get_perder(moto_t *moto);
+bool moto_get_largada(moto_t *moto);
 
 /*setters*/
 bool moto_set_velocidad(moto_t *moto, double vel);
@@ -46,6 +47,6 @@ void moto_set_der(moto_t *moto, bool der);
 void moto_set_izq(moto_t *moto, bool izq);
 void moto_set_choque(moto_t *moto, bool choque);
 void moto_set_puntaje(moto_t *moto, double puntaje);
-
+void moto_set_largada(moto_t *moto, bool largada);
 
 #endif

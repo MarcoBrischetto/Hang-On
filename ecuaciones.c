@@ -41,7 +41,7 @@ double escalado_h(double v, unsigned int h0){
 */
 
 double escalado_ancho(double v, unsigned int a0){
-    double res =  a0*((96.0-v)/96.0) + (5.0*v/96.0);
+    double res = (a0*((96.0-v)/96.0) + (5.0*v/96.0));
 
     return (res < 3)? 3 : res;
 }

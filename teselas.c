@@ -1,80 +1,76 @@
 #include "teselas.h"
 
-bool leer_teselas(imagen_t *teselas[]){
+typedef enum{
+    ROJO,
+    VERDE,
+    AZUL
+}color_t;
+
+/*  Funcion: leer_rom
+    Lee la rom y guarda lo leido en r, g o b segun indique color.
+    Esto por cada tesela, hasta completar el vector teselas
+    0->r
+    1->b
+    >= 2 ->b
+*/
+
+
+static void leer_rom(FILE *rom, imagen_t *teselas[], color_t color){
 
     uint8_t linea;
     pixel_t pixel;
     uint8_t r, g, b;
 
+    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
+        for(size_t f = 0; f < ALTO_TESELA; f++){
+
+            fread(&linea, 1, 1, rom);
+
+            for(size_t c = 0; c < ALTO_TESELA; c++){
+
+                pixel = imagen_get_pixel(teselas[i], c, f);
+
+                pixel3_a_rgb(pixel ,&r, &g, &b);
+
+                if(color == ROJO)
+                    pixel = pixel3_crear((linea >> (SHIFT_TESELA - c)) &0x1, g, b);
+
+                else if(color == VERDE)
+                    pixel = pixel3_crear(r, (linea >> (SHIFT_TESELA - c)) &0x1, b);
+
+                else
+                    pixel = pixel3_crear(r, g, (linea >> (SHIFT_TESELA - c)) &0x1);
+
+                imagen_set_pixel(teselas[i], c, f, pixel);
+
+            }
+        }
+    }
+
+}
+
+bool leer_teselas(imagen_t *teselas[]){
+    /*Leer rojo*/
     FILE *rom = fopen(ARCHIVO_ROM_R, "rb");
-
     if(rom == NULL) return false;
 
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
-        for(size_t f = 0; f < ALTO_TESELA; f++){
-
-            fread(&linea, 1, 1, rom); //leo una tesela
-
-            for(size_t c = 0; c < ALTO_TESELA; c++){
-
-                //creo un pixel en base a lo leido usando manejo de bits
-                pixel = pixel3_crear((linea >> (SHIFT_TESELA - c)) &0x1, 0, 0);
-
-                imagen_set_pixel(teselas[i], c, f, pixel);
-
-            }
-        }
-    }
+    leer_rom(rom, teselas, 0);
 
     if(fclose(rom)) return false;
 
+    /*Leer verde*/
     rom = fopen(ARCHIVO_ROM_G, "rb");
-
     if(rom == NULL) return false;
 
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
-        for(size_t f = 0; f < ALTO_TESELA; f++){
-
-            fread(&linea, 1, 1, rom);
-
-            for(size_t c = 0; c < ALTO_TESELA; c++){
-
-                pixel = imagen_get_pixel(teselas[i], c, f);
-
-                pixel3_a_rgb(pixel ,&r, &g, &b);
-
-                pixel = pixel3_crear(r, (linea >> (SHIFT_TESELA - c)) &0x1, b);
-
-                imagen_set_pixel(teselas[i], c, f, pixel);
-
-            }
-        }
-    }
+    leer_rom(rom, teselas, 1);
 
     if(fclose(rom)) return false;
 
+    /*Leer azul*/
     rom = fopen(ARCHIVO_ROM_B, "rb");
-
     if(rom == NULL) return false;
 
-    for(size_t i = 0; i < CANTIDAD_TESELAS; i++){
-        for(size_t f = 0; f < ALTO_TESELA; f++){
-
-            fread(&linea, 1, 1, rom);
-
-            for(size_t c = 0; c < ALTO_TESELA; c++){
-
-                pixel = imagen_get_pixel(teselas[i], c, f);
-
-                pixel3_a_rgb(pixel ,&r, &g, &b);
-
-                pixel = pixel3_crear(r, g, (linea >> (SHIFT_TESELA - c)) &0x1);
-
-                imagen_set_pixel(teselas[i], c, f, pixel);
-
-            }
-        }
-    }
+    leer_rom(rom, teselas, 2);
 
     if(fclose(rom)) return false;
 

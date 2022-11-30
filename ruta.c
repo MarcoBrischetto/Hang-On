@@ -16,7 +16,7 @@ const struct figura_en_ruta figuras_en_ruta[] = {
     {DELFIN, 35, 300, 0},
     {BELL, 34, -300, 0},
     {BELL, 34, 300, 0},
-    {FORUM, 34, -300, 0},
+    {FORUM, 34, -300, 0}
 };
 
 

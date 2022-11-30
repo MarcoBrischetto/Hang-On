@@ -46,6 +46,7 @@ struct moto {
     bool morder;
     bool ganar;
     bool perder;
+    bool largada;
 };
 
 
@@ -83,6 +84,7 @@ moto_t *moto_crear(){
     moto->morder = false;
     moto->ganar = false;
     moto->perder = false;
+    moto->largada = true/*false*/;
     return moto;
 }
 
@@ -146,33 +148,6 @@ double moto_dibujado_y(moto_t *moto){
     return tabla_sprites[abs(moto->intensidad)].dibujado_y;
 }
 
-// static bool calcular_choques(const struct ruta *ruta, double *ur, double x, double t){
-//
-//     bool flag_choque;
-//
-//     //solamente chequeo los que estan a distancia 77.5*t+1
-//
-//     for(size_t d = 0; d < 77.5*t+1; d++){
-//
-//         size_t indice = ruta[(size_t)x + d].indice_figura;
-//
-//         if(indice == NO_FIG) continue;
-//
-//         enum figura fig = figuras_en_ruta[indice].figura;
-//
-//         int yx = figuras_en_ruta[indice].y;
-//
-//         //Si u esta entre las mitades de los anchos, es choque
-//         double pos_u = u(yx, v(d), ur);
-//
-//         flag_choque = choque(pos_u, tabla_figuras[fig].ancho);
-//
-//     }
-//
-//     return flag_choque;
-//
-// }
-
 static bool calcular_choques(const struct ruta *ruta, double x, double t, double ym){
 
     bool flag_choque;
@@ -199,7 +174,7 @@ static bool calcular_choques(const struct ruta *ruta, double x, double t, double
 
 void moto_computar_fisicas(moto_t *moto, double tiempo, double tiempo_total, const struct ruta *ruta, double *ur){
 
-    if(moto->choque){
+    if(moto->choque || moto->largada){
         moto->velocidad = 0;
         moto->y = 0;
         return;
@@ -303,6 +278,10 @@ bool moto_get_perder(moto_t *moto){
     return moto->perder;
 }
 
+bool moto_get_largada(moto_t *moto){
+    return moto->largada;
+}
+
 /*setters*/
 
 bool moto_set_velocidad(moto_t *moto, double vel){
@@ -351,3 +330,6 @@ void moto_set_puntaje(moto_t *moto, double puntaje){
     moto->puntaje = puntaje;
 }
 
+void moto_set_largada(moto_t *moto, bool largada){
+    moto->largada = largada;
+}

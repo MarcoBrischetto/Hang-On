@@ -16,11 +16,11 @@ const struct figura_sprite tabla_figuras[] = {
     [BELL] =    {82922, 63, 146},
     [FORUM] =   {89102, 118, 114},
     [DELFIN] =  {119280, 144, 110},
-    [SEMAFORO] = {0,0,0},
-    [BANNER] = {0,0,0},
-    [VIGA] = {0,0,0},
-    [GOAL]  =   {194556, 140, 47}, //141 48
-    [NO_FIG] = {0,0,0}
+    [SEMAFORO] ={108724, 66, 201},
+    [BANNER] =  {114518, 244, 48},
+    [VIGA] =    {127098, 198, 48},
+    [GOAL]  =   {194556, 140, 47},
+    [NO_FIG] =  {0,0,0}
 
 };
 
@@ -78,11 +78,11 @@ bool cargar_figuras_rom(uint16_t rom[CANTIDAD_VALORES_ROMS]){
 
     if(!cargar_par_rom( ROM_6820, ROM_6819, rom, 0)) return false;
     if(!cargar_par_rom( ROM_6822, ROM_6821, rom, BYTES_POR_ROM)) return false;
-    if(!cargar_par_rom( ROM_6824, ROM_6823, rom, BYTES_POR_ROM * 2 )) return false;
-    if(!cargar_par_rom( ROM_6826, ROM_6825, rom, BYTES_POR_ROM * 3 )) return false;
-    if(!cargar_par_rom( ROM_6828, ROM_6827, rom, BYTES_POR_ROM * 4 )) return false;
-    if(!cargar_par_rom( ROM_6830, ROM_6829, rom, BYTES_POR_ROM * 5 )) return false;
-    if(!cargar_par_rom( ROM_6846, ROM_6845, rom, BYTES_POR_ROM * 6 )) return false;
+    if(!cargar_par_rom( ROM_6824, ROM_6823, rom, BYTES_POR_ROM * 2)) return false;
+    if(!cargar_par_rom( ROM_6826, ROM_6825, rom, BYTES_POR_ROM * 3)) return false;
+    if(!cargar_par_rom( ROM_6828, ROM_6827, rom, BYTES_POR_ROM * 4)) return false;
+    if(!cargar_par_rom( ROM_6830, ROM_6829, rom, BYTES_POR_ROM * 5)) return false;
+    if(!cargar_par_rom( ROM_6846, ROM_6845, rom, BYTES_POR_ROM * 6)) return false;
 
     return true;
 }
@@ -98,20 +98,19 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
     imagen_t *fig = imagen_generar(ancho, alto, 0);
     if(fig == NULL) return NULL;
 
-    bool nueva_linea = 1;
+    bool nueva_linea = false;
 
     size_t f = 0, c = 0;
 
-    for(size_t i = pos; i < pos + (ancho*alto-ancho)/4; i++){
+    for(size_t i = pos; i < pos + (ancho*alto - ancho)/4; i++){
 
         if(c >= ancho) c = 0;
-
         //mientras sea nueva linea y sea 0xf, saltea
 
-        if(nueva_linea && ((rom[i] & 0xf) == 0xf))
+        if((nueva_linea) && ((rom[i] & 0xf) == 0xf))
             continue;
 
-        nueva_linea = 0;
+        nueva_linea = false;
 
         //si es 0xf, lo cambio a 0
 
@@ -125,7 +124,7 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
         if((rom[i] & 0xf) == 0xf){
             c = 0;
             f++;
-            nueva_linea = 1;
+            nueva_linea = true;
             continue;
         }
 
