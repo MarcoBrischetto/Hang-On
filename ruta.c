@@ -4438,7 +4438,7 @@ void ruta_dibujar_figuras(imagen_t *cuadro, const struct ruta *ruta, double *ur,
         if(img_fig == NULL) continue;
 
         double alto_escalado = escalado_h(v(d), tabla_figuras[fig].alto);
-        double ancho_escalado = escalado_ancho(v(d), tabla_figuras[fig].ancho);
+        double ancho_escalado = 0.9 * escalado_ancho(v(d), tabla_figuras[fig].ancho);
 
         imagen_t *img_fig_escalada = imagen_escalar(img_fig, ancho_escalado, alto_escalado);
 

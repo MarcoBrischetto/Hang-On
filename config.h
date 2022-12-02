@@ -7,7 +7,7 @@
 #define VENTANA_ANCHO 320
 #define VENTANA_ALTO 224
 */
-#define JUEGO_FPS 30
 
+#define JUEGO_FPS 30
 
 #endif

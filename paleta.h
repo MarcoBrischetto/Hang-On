@@ -4,6 +4,7 @@
 #include "pixel.h"
 
 extern const pixel_t paleta_3[][8];
+extern const pixel_t paleta_3_identidad[][8];
 extern const pixel_t paleta_4[][16];
 
 #endif

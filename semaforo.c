@@ -3,8 +3,8 @@
 
 const semaforo_t tabla_semaforo_apagado[] = {
 
-    {SEMAFORO, 41, 215, 0},
-    {SEMAFORO, 41, -215, 0},
+    {SEMAFORO, 41, 210, 0},
+    {SEMAFORO, 41, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
     {BANNER, 45, 0, 0}
@@ -13,8 +13,8 @@ const semaforo_t tabla_semaforo_apagado[] = {
 
 const semaforo_t tabla_semaforo_amarillo[] = {
 
-    {SEMAFORO, 42, 215, 0},
-    {SEMAFORO, 42, -215, 0},
+    {SEMAFORO, 42, 210, 0},
+    {SEMAFORO, 42, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
     {BANNER, 45, 0, 0}
@@ -23,24 +23,24 @@ const semaforo_t tabla_semaforo_amarillo[] = {
 
 const semaforo_t tabla_semaforo_rojo[] = {
 
-    {SEMAFORO, 43, 215, 0},
-    {SEMAFORO, 43, -215, 0},
+    {SEMAFORO, 43, 210, 0},
+    {SEMAFORO, 43, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
     {BANNER, 45, 0, 0},
 };
 
 const semaforo_t tabla_semaforo_verde[] = {
-    {SEMAFORO, 44, 215, 0},
-    {SEMAFORO, 44, -215, 0},
+    {SEMAFORO, 44, 210, 0},
+    {SEMAFORO, 44, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
     {BANNER, 45, 0, 0}
 };
 
 const semaforo_t tabla_semaforo_llegada[] = {
-    {SEMAFORO, 41, 215, 0},
-    {SEMAFORO, 41, -215, 0},
+    {SEMAFORO, 41, 210, 1},
+    {SEMAFORO, 41, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
     {BANNER, 47, 0, 0}
@@ -53,7 +53,7 @@ mef_semaforo_t mef_semaforo(mef_semaforo_t estado, uint16_t *rom, imagen_t *cuad
 
         case APAGADO:
 
-            dibujar_semaforo(rom, x, 6, tiempo, cuadro, paleta, ur, tabla_semaforo_apagado);
+            dibujar_semaforo(rom, x, X_LARGADA, tiempo, cuadro, paleta, ur, tabla_semaforo_apagado);
 
             if(tiempo > 1) estado = AMARILLO;
 
@@ -61,7 +61,7 @@ mef_semaforo_t mef_semaforo(mef_semaforo_t estado, uint16_t *rom, imagen_t *cuad
 
         case AMARILLO:
 
-            dibujar_semaforo(rom, x, 6, tiempo, cuadro, paleta, ur, tabla_semaforo_amarillo);
+            dibujar_semaforo(rom, x, X_LARGADA, tiempo, cuadro, paleta, ur, tabla_semaforo_amarillo);
 
             if(tiempo > 2) estado = ROJO;
 
@@ -69,7 +69,7 @@ mef_semaforo_t mef_semaforo(mef_semaforo_t estado, uint16_t *rom, imagen_t *cuad
 
         case ROJO:
 
-            dibujar_semaforo(rom, x, 6, tiempo, cuadro, paleta, ur, tabla_semaforo_rojo);
+            dibujar_semaforo(rom, x, X_LARGADA, tiempo, cuadro, paleta, ur, tabla_semaforo_rojo);
 
             if(tiempo > 3) estado = VERDE;
 
@@ -77,7 +77,7 @@ mef_semaforo_t mef_semaforo(mef_semaforo_t estado, uint16_t *rom, imagen_t *cuad
 
         case VERDE:
 
-            dibujar_semaforo(rom, x, 6, tiempo, cuadro, paleta, ur, tabla_semaforo_verde);
+            dibujar_semaforo(rom, x, X_LARGADA, tiempo, cuadro, paleta, ur, tabla_semaforo_verde);
 
             if(x >= 6) estado = SIN_SEMAFORO;
 
@@ -85,13 +85,13 @@ mef_semaforo_t mef_semaforo(mef_semaforo_t estado, uint16_t *rom, imagen_t *cuad
 
         case SIN_SEMAFORO:
 
-            if(x > 4200 - CAMPO_VISION) estado = LLEGADA;
+            if(x > X_LLEGADA - CAMPO_VISION) estado = LLEGADA;
 
             break;
 
         case LLEGADA:
 
-            dibujar_semaforo(rom, x, 4200, tiempo, cuadro, paleta, ur, tabla_semaforo_llegada);
+            dibujar_semaforo(rom, x, X_LLEGADA, tiempo, cuadro, paleta, ur, tabla_semaforo_llegada);
 
             break;
 

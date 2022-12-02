@@ -34,7 +34,7 @@ int main() {
     int dormir = 0;
 
     // BEGIN código del alumno
-    double tiempo_restante = 100;
+    double tiempo_restante = 75;
     double tiempo_total = 0;
     double temporizador = 0;
     double posicion_moto_anterior;
@@ -123,7 +123,9 @@ int main() {
         desplazamiento_curva(uc, ruta, (size_t)moto_get_x(moto));
         desplazamiento_total(uc, ul, ur);
 
-        tiempo_restante -= 1.0/JUEGO_FPS;
+
+        if(estado_semaforo >= VERDE) tiempo_restante -= 1.0/JUEGO_FPS;
+
         tiempo_total += 1.0/JUEGO_FPS;
 
         moto_computar_fisicas(moto, 1.0/JUEGO_FPS, tiempo_restante, ruta, ur);
@@ -141,9 +143,15 @@ int main() {
 
         // TODO chequear esto
         if(fondo1_x > FONDO_X_INICIAL){
-            fondo1_x = -1728;
-            fondo2_x = -1728;
+            fondo1_x = FONDO_LIMITE;
+            fondo2_x = FONDO_LIMITE;
         }
+
+        if(fondo1_x < FONDO_LIMITE){
+            fondo1_x = FONDO_X_INICIAL;
+            fondo2_x = FONDO_X_INICIAL;
+        }
+
 
         fondo2_x -= desplazamiento_fondo(moto_get_x(moto), posicion_moto_anterior, ruta);
         fondo1_x -= 0.75*desplazamiento_fondo(moto_get_x(moto), posicion_moto_anterior, ruta);
@@ -164,7 +172,6 @@ int main() {
         imagen_pegar(cuadro, pasto, 0, 128, false);
         imagen_destruir(pasto);
 
-
         /*ruta*/
 
         ruta_dibujar(cuadro, img_ruta, ur, moto_get_x(moto), ruta);
@@ -181,8 +188,6 @@ int main() {
         estado_semaforo =  mef_semaforo(estado_semaforo, rom, cuadro, tiempo_total, moto_get_x(moto), ur, paleta_4);
 
         if(estado_semaforo == VERDE) moto_set_largada(moto, false);
-
-        //dibujar_semaforo(rom, moto_get_x(moto), 1/JUEGO_FPS, cuadro, paleta_4, ur);
 
         /*Textos*/
 

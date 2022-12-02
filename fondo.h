@@ -14,6 +14,8 @@
 #define FONDO1_Y    64
 #define FONDO2_Y    112
 
+#define FONDO_LIMITE -1728
+
 extern const uint8_t fondo1_paleta[FONDO1_FILAS][FONDO1_COLUMNAS];
 extern const uint16_t fondo1_mosaico[FONDO1_FILAS][FONDO1_COLUMNAS];
 extern const uint8_t fondo2_paleta[FONDO2_FILAS][FONDO2_COLUMNAS];

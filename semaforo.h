@@ -1,8 +1,8 @@
 #ifndef SEMAFORO_H
 #define SEMAFORO_H
 
-#define X_LARGADA   5
-#define X_LLEGADA   2400
+#define X_LARGADA   6
+#define X_LLEGADA   4200
 
 #include "imagen.h"
 #include "figura.h"

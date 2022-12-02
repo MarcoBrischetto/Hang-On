@@ -13,9 +13,9 @@ const uint16_t top_mosaico[TOP_FILAS][TOP_COLUMNAS] = {
 };
 
 const uint8_t top_paleta[TOP_FILAS][TOP_COLUMNAS] = {
-    {5, 5, 5, 5, 5},
-    {5, 5, 5, 5, 5},
-    {5, 5, 5, 5, 5}
+    {0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0}
 };
 
 const uint16_t score_mosaico[SCORE_FILAS][SCORE_COLUMNAS] = {
@@ -25,9 +25,9 @@ const uint16_t score_mosaico[SCORE_FILAS][SCORE_COLUMNAS] = {
 };
 
 const uint8_t score_paleta[SCORE_FILAS][SCORE_COLUMNAS] = {
-    {5, 5, 5, 5, 5, 5, 5},
-    {5, 5, 5, 5, 5, 5, 5},
-    {5, 5, 5, 5, 5, 5, 5}
+    {0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0}
 };
 
 
@@ -38,9 +38,9 @@ const uint16_t time_mosaico[TIME_FILAS][TIME_COLUMNAS] = {
 };
 
 const uint8_t time_paleta[TIME_FILAS][TIME_COLUMNAS] = {
-    {5, 5, 5, 5, 5, 5},
-    {5, 5, 5, 5, 5, 5},
-    {5, 5, 5, 5, 5, 5}
+    {0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0}
 };
 
 const uint16_t game_over_mosaico[GAME_OVER_FILAS][GAME_OVER_COLUMNAS] = {
@@ -150,31 +150,21 @@ texto_t lista_textos[] = {
 
 };
 
-
 void generar_textos_estaticos(imagen_t *cuadro, imagen_t *teselas[]){
 
-    /*TODO hacerlo iterativo*/
-
-    imagen_t *top = generar_mosaico(teselas, paleta_3, TOP_FILAS, TOP_COLUMNAS, top_mosaico, top_paleta);
-    imagen_pegar(cuadro, top, 16, 0, false);
+    imagen_t *top = generar_mosaico(teselas, paleta_3_identidad, TOP_FILAS, TOP_COLUMNAS, top_mosaico, top_paleta);
+    imagen_pegar_con_paleta(cuadro, top, 16, 0, paleta_3[5], false);
     imagen_destruir(top);
 
-    /*
-    size_t i = 0;
-    imagen_t *txt = generar_mosaico(teselas, paleta_3, lista_textos[i].filas, lista_textos[i].columnas, (const uint16_t (*)[lista_textos[i].columnas])lista_textos[i].mosaico, (const uint8_t (*)[lista_textos[i].columnas])lista_textos[i].paleta);
-    imagen_pegar(cuadro, txt, lista_textos[i].x, lista_textos[i].y, false);
-    imagen_destruir(txt);
-*/
-    imagen_t *time = generar_mosaico(teselas, paleta_3, TIME_FILAS, TIME_COLUMNAS, time_mosaico, time_paleta);
-    imagen_pegar(cuadro, time, 128, 0, false);
+    imagen_t *time = generar_mosaico(teselas, paleta_3_identidad, TIME_FILAS, TIME_COLUMNAS, time_mosaico, time_paleta);
+    imagen_pegar_con_paleta(cuadro, time, 128, 0, paleta_3[5], false);
     imagen_destruir(time);
 
-    imagen_t *score = generar_mosaico(teselas, paleta_3, SCORE_FILAS, SCORE_COLUMNAS, score_mosaico, score_paleta);
-    imagen_pegar(cuadro, score, 176, 0, false);
+    imagen_t *score = generar_mosaico(teselas, paleta_3_identidad, SCORE_FILAS, SCORE_COLUMNAS, score_mosaico, score_paleta);
+    imagen_pegar_con_paleta(cuadro, score, 176, 0, paleta_3[5], false);
     imagen_destruir(score);
 
-
-    escribir_texto(cuadro, "1000000", teselas, 64, 8, paleta_3[5]);
+    escribir_texto(cuadro, "1000000", teselas, 64, 8, paleta_3[8]);
     escribir_texto(cuadro, "STAGE", teselas, 24, 24, paleta_3[5]);
     escribir_texto(cuadro, "1", teselas, 72, 24, paleta_3[6]);
 
@@ -182,24 +172,5 @@ void generar_textos_estaticos(imagen_t *cuadro, imagen_t *teselas[]){
     escribir_texto(cuadro, "KM", teselas, 272, 24, paleta_3[6]);
 
 
-/*
-    imagen_t *game_over = generar_mosaico(teselas, paleta_3, GAME_OVER_FILAS, GAME_OVER_COLUMNAS, game_over_mosaico, game_over_paleta);
-    imagen_pegar(cuadro, game_over, 80, 10, false);
-    imagen_destruir(game_over);
-
-    imagen_t *goal = generar_mosaico(teselas, paleta_3, GOAL_FILAS, GOAL_COLUMNAS, goal_mosaico, goal_paleta);
-    imagen_pegar(cuadro, goal, 80, 40, false);
-    imagen_destruir(goal);
-*/
-}
-/*
-void escribir_ganar(){
-    imagen_t *game_over = generar_mosaico(teselas, paleta_3, GAME_OVER_FILAS, GAME_OVER_COLUMNAS, game_over_mosaico, game_over_paleta);
-    imagen_pegar(cuadro, game_over, 80, 10, false);
-    imagen_destruir(game_over);
 }
 
-void escribir_perder(){
-
-
-}*/
