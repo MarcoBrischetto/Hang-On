@@ -76,6 +76,11 @@ const uint16_t numeros_mosaico[10][2] = {
     {0x92, 0x93}
 };
 
+/*
+    funcion: escribir_texto
+    dibuja en la imagen cuadro textos mediante teselas
+
+*/
 
 void escribir_texto(imagen_t *cuadro, char *s, imagen_t *teselas[], size_t x, size_t y, const pixel_t paleta[]){
 
@@ -83,6 +88,12 @@ void escribir_texto(imagen_t *cuadro, char *s, imagen_t *teselas[], size_t x, si
         imagen_pegar_con_paleta(cuadro, teselas[(uint8_t)s[i]], x + i * ANCHO_TESELA, y, paleta, false);
 
 }
+
+/*
+    funcion: escribir_texto_alineacion_derecha
+    dibuja en la imagen cuadro textos mediante teselas y los alinea a la derecha
+
+*/
 
 void escribir_texto_alineacion_derecha(imagen_t *cuadro, char *s, imagen_t *teselas[],size_t x, size_t y, const pixel_t paleta[]){
 
@@ -94,7 +105,12 @@ void escribir_texto_alineacion_derecha(imagen_t *cuadro, char *s, imagen_t *tese
 
 }
 
-/* TODO mejorar implementacion*/
+/*
+    funcion: escribir_numeros
+    dibuja en la imagen cuadro numeros del contador de segundos mediante teselas
+
+*/
+
 static void escribir_numeros(imagen_t *cuadro, int num, imagen_t *teselas[], const uint16_t mosaico_teselas[][2],size_t x, size_t y, const pixel_t paleta[]){
 
     char str[MAX_STR];
@@ -115,6 +131,11 @@ static void escribir_numeros(imagen_t *cuadro, int num, imagen_t *teselas[], con
 
 }
 
+/*
+    funcion: generar_textos_estaticos
+    dibuja en la imagen cuadro los textos estaticos
+
+*/
 void generar_textos_variables(imagen_t *cuadro, imagen_t *teselas[], int velocidad, int puntaje, int tiempo_restante){
     char aux[MAX_STR];
 
@@ -128,12 +149,10 @@ void generar_textos_variables(imagen_t *cuadro, imagen_t *teselas[], int velocid
 
 }
 
-/*TODO Revisar*/
-
 enum textos{
     TOP, TIME, SCORE, TOP_NUM ,STAGE, STAGE_NUM, KM, VELOCIDAD, PUNTAJE
 };
-
+/*
 typedef struct{
     char *str;
     size_t x;
@@ -144,11 +163,12 @@ typedef struct{
     const void *paleta;
 
 }texto_t;
+*/
+/*
+    funcion: generar_textos_estaticos
+    dibuja en la imagen cuadro los textos estaticos
 
-texto_t lista_textos[] = {
-    [TOP] = {NULL, 16, 0, TOP_FILAS, TOP_COLUMNAS, top_mosaico, top_paleta},
-
-};
+*/
 
 void generar_textos_estaticos(imagen_t *cuadro, imagen_t *teselas[]){
 

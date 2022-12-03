@@ -4294,13 +4294,6 @@ const struct ruta ruta[4200 + 70] = {
 };
 
 const pixel_t colores_ruta[][16] = {
-    // columnas: Asfalto, líneas laterales, color lateral, franja del medio
-   /*
-    {0x666, 0xfff, 0xb00, 0xfff},
-    {0x666, 0xfff, 0xfff, 0xfff},
-    {0x566, 0xfff, 0xb00, 0x566},
-    {0x566, 0xfff, 0xfff, 0x566}
-    */
 
     //columnas(ignorando 0): Asfalto suferior, Asfalto inferior, Linea lateral, color lateral superior, color lateral inferior, franja medio
     {0, 0, 0, 0, 0x666, 0x666, 0, 0xfff, 0, 0, 0 , 0, 0xb00, 0xb00, 0, 0xfff},
@@ -4348,7 +4341,6 @@ static imagen_t *ruta_completar(imagen_t *ruta){
 /*
     funcion: ruta_cargar_rom
     devuelve la imagen de la ruta contenida en la rom
-    obs: ver si se puede leer de a mas bytes
 */
 
 imagen_t *ruta_cargar_rom(){

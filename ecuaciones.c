@@ -59,11 +59,6 @@ void desplazamiento_lateral(double *ul, double ym){
     }
 }
 
-/*
-    funcion:
-
-
- */
 
 /*
     funcion: desplazamiento_curva

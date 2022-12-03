@@ -21,6 +21,5 @@ double puntaje(double velocidad, double tiempo, double puntaje, double posicion,
 bool ganar(double posicion);
 bool perder(double t_total);
 bool choque(double yx, double ym, double ancho);
-//bool choque(double u, double ancho);
 
 #endif

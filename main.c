@@ -47,7 +47,6 @@ int main() {
     double uc[POSICIONES_VECTOR];
     double ur[POSICIONES_VECTOR];
 
-    /*TODO hacer chequeos de inicializacion*/
     uint16_t rom[CANTIDAD_VALORES_ROMS];
     if(cargar_figuras_rom(rom) == false) return 1;
 
@@ -56,10 +55,12 @@ int main() {
 
     imagen_t *teselas[CANTIDAD_TESELAS];
 
-    cargar_teselas(teselas);
+    if(!cargar_teselas(teselas)){
+        moto_destruir(moto);
+        return 1;
+    }
 
     imagen_t *img_ruta = ruta_cargar_rom();
-
 
     // END código del alumno
 

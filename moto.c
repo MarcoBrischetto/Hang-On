@@ -6,16 +6,6 @@
 
 //#include "ruta"
 
-/*
-    TODO:  -la moto misma va a devolver que hay que dibujar
-            se pueden hacer getters para saber en que posicion y demas
-        -ver prioridades de giro
-        -ver tema de la intensidad de giro, hace falta que tenga getter y setter?
-        -fuerzo el maximo si ingresan valores no validos?
-        -ver si no conviene expresar el movimiento de otra manera
-        -capaz no vale la pena poner la figura y el reflejo y solamente usar intensidad de giro
-        -ver posicionamiento a la hora de girar
- */
 
 enum figura_moto {
     MOTO_1 = 0, MOTO_2, MOTO_3, MOTO_4
@@ -58,12 +48,21 @@ struct moto_sprite {
     size_t dibujado_x;
     size_t dibujado_y;
 };
-
+/*
 const struct moto_sprite tabla_sprites[4] = {
     [MOTO_1] =  {532, 36, 73, 144, 150},
     [MOTO_2] =  {5670, 36, 70, 126, 153},
     [MOTO_3] =  {11284, 46, 63, 126, 163},
     [MOTO_4] =  {17215, 60, 54, 126, 172}
+};
+*/
+
+
+const struct moto_sprite tabla_sprites[4] = {
+    [MOTO_1] =  {532, 36, 72, 144, 151},
+    [MOTO_2] =  {5670, 36, 70, 130, 152},
+    [MOTO_3] =  {11284, 46, 63, 130, 160},
+    [MOTO_4] =  {17215, 60, 54, 130, 169}
 };
 
 moto_t *moto_crear(){
@@ -84,7 +83,7 @@ moto_t *moto_crear(){
     moto->morder = false;
     moto->ganar = false;
     moto->perder = false;
-    moto->largada = true/*false*/;
+    moto->largada = true;
     return moto;
 }
 

@@ -3,7 +3,7 @@
 
 const semaforo_t tabla_semaforo_apagado[] = {
 
-    {SEMAFORO, 41, 210, 0},
+    {SEMAFORO, 41, 210, 1},
     {SEMAFORO, 41, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
@@ -13,7 +13,7 @@ const semaforo_t tabla_semaforo_apagado[] = {
 
 const semaforo_t tabla_semaforo_amarillo[] = {
 
-    {SEMAFORO, 42, 210, 0},
+    {SEMAFORO, 42, 210, 1},
     {SEMAFORO, 42, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
@@ -23,7 +23,7 @@ const semaforo_t tabla_semaforo_amarillo[] = {
 
 const semaforo_t tabla_semaforo_rojo[] = {
 
-    {SEMAFORO, 43, 210, 0},
+    {SEMAFORO, 43, 210, 1},
     {SEMAFORO, 43, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
@@ -31,7 +31,7 @@ const semaforo_t tabla_semaforo_rojo[] = {
 };
 
 const semaforo_t tabla_semaforo_verde[] = {
-    {SEMAFORO, 44, 210, 0},
+    {SEMAFORO, 44, 210, 1},
     {SEMAFORO, 44, -210, 0},
     {VIGA, 45, 145, 0},
     {VIGA, 45, -145, 0},
@@ -148,30 +148,3 @@ void dibujar_semaforo(uint16_t *rom, double x, double xs,double tiempo, imagen_t
 
 }
 
-
-/*
-        imagen_t *viga_rom = obtener_figura(rom, tabla_figuras[VIGA].pos, tabla_figuras[VIGA].ancho, tabla_figuras[VIGA].alto);
-        imagen_t *viga = imagen_generar(198, 249, 0);
-        imagen_pegar(viga, viga_rom, 0, 0, false);
-        imagen_pegar_con_paleta(cuadro, viga, 0, 0, paleta_4[45], false);
-        imagen_destruir(viga_rom);
-
-        imagen_t *banner_rom = obtener_figura(rom, tabla_figuras[BANNER].pos, tabla_figuras[BANNER].ancho, tabla_figuras[BANNER].alto);
-        imagen_t *banner = imagen_generar(244, 249, 0);
-        imagen_pegar(banner, banner_rom, 0, 0, false);
-        imagen_pegar_con_paleta(cuadro, banner, 200, 0, paleta_4[45], false);
-        imagen_destruir(banner_rom);
-
-        imagen_t *semaforo = obtener_figura(rom, tabla_figuras[SEMAFORO].pos, tabla_figuras[SEMAFORO].ancho, tabla_figuras[SEMAFORO].alto);
-
-        imagen_pegar_con_paleta(cuadro, semaforo, 200, 100, paleta_4[41], false);
-
-        imagen_destruir(semaforo);
-
-        imagen_t *banner = obtener_figura(rom, tabla_figuras[BANNER].pos, tabla_figuras[BANNER].ancho, tabla_figuras[BANNER].alto);
-
-        imagen_pegar_con_paleta(cuadro, viga, 0, 0);
-
-
-        imagen_pegar_con_paleta(cuadro, semaforo, 0, 0);
-        imagen_pegar_con_paleta(cuadro, banner, 0, 0);*/

@@ -13,10 +13,20 @@ void pixel3_a_rgb(pixel_t pixel3, uint8_t *r, uint8_t *g, uint8_t *b){
 
 }
 
+/*
+    funcion: pixel4_crear
+    Genera un pixel con 4 componentes a, b, c y d
+*/
+
 pixel_t pixel4_crear(bool a, bool b, bool c, bool d){
 
     return (a << 3) | (b << 2) | (c << 1) | (d);
 }
+
+/*
+    funcion: pixel4_crear
+    Descompone un pixel 4 en sus componentes individuales
+*/
 
 void pixel4_a_abcd(pixel_t pixel4, uint8_t *a, uint8_t *b, uint8_t *c, uint8_t *d){
 

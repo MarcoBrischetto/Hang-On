@@ -1,13 +1,6 @@
 #include "figura.h"
 #include <stdio.h>
 
-/*
-const char tabla_roms[][]{
-
-
-
-};
-*/
 
 const struct figura_sprite tabla_figuras[] = {
     [ARBOL] =   {50116, 46, 188},
@@ -57,9 +50,6 @@ static bool cargar_par_rom(char *r_ms_rom, char *r_ls_rom, uint16_t rom[CANTIDAD
         rom[i + pos] = bloque;
     }
 
-
-    //if(fclose(ms_rom) || fclose(ls_rom)) return false;
-
     fclose(ms_rom);
     fclose(ls_rom);
 
@@ -77,7 +67,7 @@ static bool cargar_par_rom(char *r_ms_rom, char *r_ls_rom, uint16_t rom[CANTIDAD
 bool cargar_figuras_rom(uint16_t rom[CANTIDAD_VALORES_ROMS]){
 
     if(!cargar_par_rom( ROM_6820, ROM_6819, rom, 0)) return false;
-    if(!cargar_par_rom( ROM_6822, ROM_6821, rom, BYTES_POR_ROM)) return false;
+    if(!cargar_par_rom( ROM_6822, ROM_6821, rom, BYTES_POR_ROM )) return false;
     if(!cargar_par_rom( ROM_6824, ROM_6823, rom, BYTES_POR_ROM * 2)) return false;
     if(!cargar_par_rom( ROM_6826, ROM_6825, rom, BYTES_POR_ROM * 3)) return false;
     if(!cargar_par_rom( ROM_6828, ROM_6827, rom, BYTES_POR_ROM * 4)) return false;
@@ -101,13 +91,118 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
     bool nueva_linea = false;
 
     size_t f = 0, c = 0;
+    size_t i = pos, cnt = 0;
 
-    for(size_t i = pos; i < pos + (ancho*alto - ancho)/4; i++){
+    while(f < alto){
+
+        if(c == ancho) c = 0;
+        //mientras sea nueva linea y sea 0xf, saltea
+/*
+        if((nueva_linea) && (rom[i] == 0x0f0f)){
+            i++;
+            continue;
+        }
+  */
+        if((nueva_linea) && ((rom[i] & 0xf) == 0xf)){
+            i++;
+            continue;
+        }
+
+        nueva_linea = false;
+
+        uint16_t aux;
+        pixel_t pixel = ((aux = ((rom[i] >> (12 - cnt * 4)) & 0xf)) == 0xf)? 0 : aux;
+        imagen_set_pixel(fig, c, f, pixel);
+
+        if(cnt >= 3 && (rom[i] & 0xf) == 0xf){
+            c = 0;
+            cnt = 0;
+            f++;
+            i++;
+            nueva_linea = true;
+            continue;
+        }
+
+        c++;
+        cnt++;
+
+        if(cnt > 3){
+            cnt = 0;
+            i++;
+        }
+
+    }
+
+    return fig;
+
+}
+
+/*
+imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t ancho, size_t alto){
+
+    imagen_t *fig = imagen_generar(ancho, alto, 0);
+    if(fig == NULL) return NULL;
+
+    bool nueva_linea = false;
+
+    size_t f = 0, c = 0;
+
+    size_t ipos = pos;
+
+    for(size_t i = pos; i < pos + (ancho*alto)/4; i++, ipos++){
+
+        if(c >= ancho) c = 0;
+        if(f >= alto) f = 0;
+        //mientras sea nueva linea y sea 0xf, saltea
+
+        if((nueva_linea) && (rom[ipos] == 0x0f0f)){
+            i--;
+            continue;
+        }
+
+        nueva_linea = false;
+
+        //si es 0xf, lo cambio a 0
+
+        for(size_t j = 0; j < 4; j++){
+            uint16_t aux;
+            pixel_t pixel = ((aux = ((rom[ipos] >> (12 - j * 4)) & 0xf)) == 0xf)? 0 : aux;
+            //uint8_t pixel = (rom[i] >> (12 - j * 4)) & 0xf;
+            imagen_set_pixel(fig, c + j, f, pixel);
+        }
+
+        if((rom[ipos] & 0xf) == 0xf){
+            c = 0;
+            f++;
+            i++;
+            nueva_linea = true;
+            continue;
+        }
+
+        c+=4;   //salto de a 4 porque leo de a 4 pixeles
+    }
+
+    return fig;
+
+}*/
+
+
+/*
+imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t ancho, size_t alto){
+
+    imagen_t *fig = imagen_generar(ancho, alto, 0);
+    if(fig == NULL) return NULL;
+
+    bool nueva_linea = false;
+
+    size_t f = 0, c = 0;
+
+    for(size_t i = pos; i < pos + (ancho*alto)/4; i++){
 
         if(c >= ancho) c = 0;
         //mientras sea nueva linea y sea 0xf, saltea
 
-        if((nueva_linea) && ((rom[i] & 0xf) == 0xf))
+        if((nueva_linea) && rom[i]  == 0x0f0f)
             continue;
 
         nueva_linea = false;
@@ -134,4 +229,6 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
     return fig;
 
 }
+*/
+
 

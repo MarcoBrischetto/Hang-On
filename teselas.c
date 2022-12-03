@@ -14,7 +14,6 @@ typedef enum{
     >= 2 ->b
 */
 
-
 static void leer_rom(FILE *rom, imagen_t *teselas[], color_t color){
 
     uint8_t linea;
@@ -48,6 +47,12 @@ static void leer_rom(FILE *rom, imagen_t *teselas[], color_t color){
     }
 
 }
+
+/*
+    funcion: leer_teselas
+    lee las teselas y las carga en el vector de imagenes teselas.
+
+*/
 
 bool leer_teselas(imagen_t *teselas[]){
     /*Leer rojo*/
@@ -109,7 +114,7 @@ bool cargar_teselas(imagen_t *teselas[CANTIDAD_TESELAS]){
     for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
         teselas[i] = imagen_generar(ANCHO_TESELA, ALTO_TESELA, 0);
 
-    if(! leer_teselas(teselas)) {
+    if(!leer_teselas(teselas)) {
 
         for(size_t i = 0; i < CANTIDAD_TESELAS; i++)
             imagen_destruir(teselas[i]);
