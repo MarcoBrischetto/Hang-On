@@ -8,7 +8,6 @@
 */
 
 double v(double d){
-    //TODO podira chquear d por las dudas
     return (96.0-96.0*exp(-0.11*d));
 }
 
@@ -90,8 +89,9 @@ void desplazamiento_total(double *uc, double *ul, double *ur){
 
 /*
     funcion: u
-    Calcula la posicion u de un objeto en funcion del desplazamiento u0
-    ,su posicion v y su TODO
+    Calcula la posicion u de un objeto en la pantalla segun
+    si posicion respecto del centro de la ruta yx, si coordenada
+    v y la curvatura de la ruta ur
 */
 
 

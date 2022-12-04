@@ -13,6 +13,7 @@
 #define FONDO_X_INICIAL 320
 #define FONDO1_Y    64
 #define FONDO2_Y    112
+#define RELACION_FONDOS 0.75
 
 #define FONDO_LIMITE -1728
 

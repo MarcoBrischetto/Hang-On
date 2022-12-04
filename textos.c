@@ -4,8 +4,6 @@
 #include "imagen.h"
 #include "paleta.h"
 
-/*TODO hacer tabla de busqueda para los textos*/
-
 const uint16_t top_mosaico[TOP_FILAS][TOP_COLUMNAS] = {
     {0x94, 0x95, 0x95, 0x95, 0x96},
     {0x97, 0x98, 0x99, 0x9a, 0x9b},

@@ -4,9 +4,6 @@
 #include "fisica.h"
 #include "ecuaciones.h"
 
-//#include "ruta"
-
-
 enum figura_moto {
     MOTO_1 = 0, MOTO_2, MOTO_3, MOTO_4
 };
@@ -33,7 +30,6 @@ struct moto {
     int intensidad;    //nivel de giro en ese instante de -3 a 3, negativo es izquierda
     bool choque;      // la moto colisiono con algo?
     double puntaje;
-    bool morder;
     bool ganar;
     bool perder;
     bool largada;
@@ -48,18 +44,9 @@ struct moto_sprite {
     size_t dibujado_x;
     size_t dibujado_y;
 };
-/*
-const struct moto_sprite tabla_sprites[4] = {
-    [MOTO_1] =  {532, 36, 73, 144, 150},
-    [MOTO_2] =  {5670, 36, 70, 126, 153},
-    [MOTO_3] =  {11284, 46, 63, 126, 163},
-    [MOTO_4] =  {17215, 60, 54, 126, 172}
-};
-*/
-
 
 const struct moto_sprite tabla_sprites[4] = {
-    [MOTO_1] =  {532, 36, 72, 144, 151},
+    [MOTO_1] =  {532, 36, 73, 144, 151},
     [MOTO_2] =  {5670, 36, 70, 130, 152},
     [MOTO_3] =  {11284, 46, 63, 130, 160},
     [MOTO_4] =  {17215, 60, 54, 130, 169}
@@ -69,7 +56,7 @@ moto_t *moto_crear(){
     moto_t *moto = malloc(sizeof(moto_t));
     if(moto == NULL) return NULL;
 
-    moto->velocidad = 1;
+    moto->velocidad = 0;
     moto->paleta = PALETA_MOTO_0;
     moto->reflejar = false;
     moto->x = 0;
@@ -80,12 +67,17 @@ moto_t *moto_crear(){
     moto->izquierda = false;
     moto->intensidad = 0;
     moto->choque = 0;
-    moto->morder = false;
     moto->ganar = false;
     moto->perder = false;
     moto->largada = true;
     return moto;
 }
+
+/*
+    funcion: moto_get_figura
+    devuelve la imagen que se debe usar segun los distintos parametros de la moto
+
+*/
 
 imagen_t *moto_get_figura(moto_t *moto, uint16_t *rom){
 
@@ -137,6 +129,13 @@ size_t moto_get_paleta(moto_t *moto){
 
 }
 
+/*
+    funcion: moto_dibujado_x y moto_dibujado_y
+    indica que que posicion de la pantalla debe ser dibujada la moto
+    en la pantalla
+*/
+
+
 double moto_dibujado_x(moto_t *moto){
 
     return tabla_sprites[abs(moto->intensidad)].dibujado_x;
@@ -146,6 +145,13 @@ double moto_dibujado_x(moto_t *moto){
 double moto_dibujado_y(moto_t *moto){
     return tabla_sprites[abs(moto->intensidad)].dibujado_y;
 }
+
+/*
+    funcion: calcular_choques
+    Se encarga del computo de choques con objetos a los costados de la ruta
+    y devuelve si se ha producido uno o no
+
+*/
 
 static bool calcular_choques(const struct ruta *ruta, double x, double t, double ym){
 
@@ -170,6 +176,13 @@ static bool calcular_choques(const struct ruta *ruta, double x, double t, double
     return flag_choque;
 
 }
+
+/*
+    funcion: moto_computar_fisicas
+    Se encarga del computo de todas las fisicas de la moto, incluidos los puntajes, movimientos,
+    velocidad entre otros.
+
+*/
 
 void moto_computar_fisicas(moto_t *moto, double tiempo, double tiempo_total, const struct ruta *ruta, double *ur){
 
@@ -199,6 +212,7 @@ void moto_computar_fisicas(moto_t *moto, double tiempo, double tiempo_total, con
     moto->velocidad = morder_banquina(moto->velocidad, tiempo, moto->y);
 
     /*giros*/
+
     if(moto->derecha){
         moto->intensidad = intensidad_giro_derecha(moto->intensidad);
     }else if(moto->izquierda){
@@ -211,7 +225,7 @@ void moto_computar_fisicas(moto_t *moto, double tiempo, double tiempo_total, con
 
     moto->y = irse_al_pasto(moto->y);
 
-    moto->y = giro_de_ruta(moto->y, ruta[(int)moto->x].radio_curva, moto->velocidad, tiempo);
+    moto->y = giro_de_ruta(moto->y, ruta[(size_t)moto->x].radio_curva, moto->velocidad, tiempo);
 
     /*puntuacion*/
 
@@ -284,13 +298,13 @@ bool moto_get_largada(moto_t *moto){
 /*setters*/
 
 bool moto_set_velocidad(moto_t *moto, double vel){
-    /*conversion?*/
+
     moto->velocidad = vel;
     return true;
 }
 
 bool moto_set_x(moto_t *moto, double x){
-    /*limites?*/
+
     moto->x = x;
     return true;
 }

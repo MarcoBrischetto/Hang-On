@@ -47,7 +47,7 @@ int main() {
     double uc[POSICIONES_VECTOR];
     double ur[POSICIONES_VECTOR];
 
-    uint16_t rom[CANTIDAD_VALORES_ROMS];
+    uint16_t rom[CANTIDAD_VALORES_ROMS] = {0};
     if(cargar_figuras_rom(rom) == false) return 1;
 
     moto_t *moto = moto_crear();
@@ -124,7 +124,6 @@ int main() {
         desplazamiento_curva(uc, ruta, (size_t)moto_get_x(moto));
         desplazamiento_total(uc, ul, ur);
 
-
         if(estado_semaforo >= VERDE) tiempo_restante -= 1.0/JUEGO_FPS;
 
         tiempo_total += 1.0/JUEGO_FPS;
@@ -142,7 +141,6 @@ int main() {
 
         /*generacion de fondo*/
 
-        // TODO chequear esto
         if(fondo1_x > FONDO_X_INICIAL){
             fondo1_x = FONDO_LIMITE;
             fondo2_x = FONDO_LIMITE;
@@ -155,7 +153,7 @@ int main() {
 
 
         fondo2_x -= desplazamiento_fondo(moto_get_x(moto), posicion_moto_anterior, ruta);
-        fondo1_x -= 0.75*desplazamiento_fondo(moto_get_x(moto), posicion_moto_anterior, ruta);
+        fondo1_x -= RELACION_FONDOS*desplazamiento_fondo(moto_get_x(moto), posicion_moto_anterior, ruta);
 
         imagen_t *cuadro = imagen_generar(320, 224, 0x00f);
 
@@ -203,7 +201,7 @@ int main() {
 
         if(moto_get_ganar(moto)){
             imagen_t *goal = obtener_figura(rom, tabla_figuras[GOAL].pos, tabla_figuras[GOAL].ancho, tabla_figuras[GOAL].alto);
-            imagen_pegar_con_paleta(cuadro, goal, 96, 56, paleta_4[28], false);
+            imagen_pegar_con_paleta(cuadro, goal, 96, 56, paleta_4[30], false);
             imagen_destruir(goal);
         }
 

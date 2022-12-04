@@ -1,20 +1,31 @@
 #include "teselas.h"
 
-typedef enum{
-    ROJO,
-    VERDE,
-    AZUL
-}color_t;
+/*
+    Funcion: sintetizar
+    Sinteriza un color de la linea segun el valor c y devuelve un pixel compuesto
+    por lo colores previos y el nuevo color sintetizado
+
+*/
+
+static pixel_t sintetizar_r(bool r, bool g, bool b, size_t c, uint8_t linea){
+    return pixel3_crear((linea >> (SHIFT_TESELA - c)) &0x1, g, b);
+}
+
+static pixel_t sintetizar_g(bool r, bool g, bool b, size_t c, uint8_t linea){
+    return pixel3_crear(r, (linea >> (SHIFT_TESELA - c)) &0x1, b);
+}
+
+static pixel_t sintetizar_b(bool r, bool g, bool b, size_t c, uint8_t linea){
+    return pixel3_crear(r, g, (linea >> (SHIFT_TESELA - c)) &0x1);
+}
 
 /*  Funcion: leer_rom
     Lee la rom y guarda lo leido en r, g o b segun indique color.
     Esto por cada tesela, hasta completar el vector teselas
-    0->r
-    1->b
-    >= 2 ->b
+    Para sintetizar cada color se utiliza la funcion sintetizar
 */
 
-static void leer_rom(FILE *rom, imagen_t *teselas[], color_t color){
+static void leer_rom(FILE *rom, imagen_t *teselas[], pixel_t (*sintetizar)(bool r, bool g, bool b, size_t c, uint8_t linea)){
 
     uint8_t linea;
     pixel_t pixel;
@@ -31,14 +42,7 @@ static void leer_rom(FILE *rom, imagen_t *teselas[], color_t color){
 
                 pixel3_a_rgb(pixel ,&r, &g, &b);
 
-                if(color == ROJO)
-                    pixel = pixel3_crear((linea >> (SHIFT_TESELA - c)) &0x1, g, b);
-
-                else if(color == VERDE)
-                    pixel = pixel3_crear(r, (linea >> (SHIFT_TESELA - c)) &0x1, b);
-
-                else
-                    pixel = pixel3_crear(r, g, (linea >> (SHIFT_TESELA - c)) &0x1);
+                pixel = sintetizar( r,  g,  b,  c, linea);
 
                 imagen_set_pixel(teselas[i], c, f, pixel);
 
@@ -59,7 +63,7 @@ bool leer_teselas(imagen_t *teselas[]){
     FILE *rom = fopen(ARCHIVO_ROM_R, "rb");
     if(rom == NULL) return false;
 
-    leer_rom(rom, teselas, 0);
+    leer_rom(rom, teselas, sintetizar_r);
 
     if(fclose(rom)) return false;
 
@@ -67,7 +71,7 @@ bool leer_teselas(imagen_t *teselas[]){
     rom = fopen(ARCHIVO_ROM_G, "rb");
     if(rom == NULL) return false;
 
-    leer_rom(rom, teselas, 1);
+    leer_rom(rom, teselas, sintetizar_g);
 
     if(fclose(rom)) return false;
 
@@ -75,7 +79,7 @@ bool leer_teselas(imagen_t *teselas[]){
     rom = fopen(ARCHIVO_ROM_B, "rb");
     if(rom == NULL) return false;
 
-    leer_rom(rom, teselas, 2);
+    leer_rom(rom, teselas, sintetizar_b);
 
     if(fclose(rom)) return false;
 

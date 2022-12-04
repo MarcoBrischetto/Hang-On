@@ -256,13 +256,14 @@ void imagen_a_textura(const imagen_t *im, uint16_t *v){
 
 }
 
-
 /*
 	funcion: imagen_pegar_fila_con_paleta
 	pega una fila determinada de una imagen con una paleta
 */
 
 void imagen_pegar_fila_con_paleta(imagen_t *destino, const imagen_t *origen, int x, int y, const pixel_t paleta[], size_t f){
+
+	if(f > origen->alto) return;
 
 	for(int c = x >= 0 ? 0 : -x; c < origen->ancho && c + x < destino->ancho; c++){
 		if(origen->pixeles[f][c] != 0)

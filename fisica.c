@@ -2,6 +2,10 @@
 #include <math.h>
 #include <stdlib.h>
 
+/*
+    Indica los niveles de giro posibles
+*/
+
 const int tabla_intensidades[] = {
     0,
     3,

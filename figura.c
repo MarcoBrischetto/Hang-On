@@ -82,28 +82,69 @@ bool cargar_figuras_rom(uint16_t rom[CANTIDAD_VALORES_ROMS]){
 
     devuelve una imagen ancho x alto de la figura pedida en la posocion pos del vector rom
 */
-
+/*
 imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t ancho, size_t alto){
 
     imagen_t *fig = imagen_generar(ancho, alto, 0);
     if(fig == NULL) return NULL;
 
+    size_t cnt = 0;
+    size_t i = pos;
+    size_t nueva_linea = false;
+
+    for(size_t f = 0; f < alto; f++){
+        for(size_t c = 0; c < ancho; c++){
+
+            //if(nueva_linea && ((rom[i] & 0xf) == 0xf)){
+            if(nueva_linea && (rom[i] == 0x0f0f)){
+                i++;
+                c = 0;
+                continue;
+            }
+
+            if(nueva_linea) c = 0;
+
+            nueva_linea = false;
+
+            uint16_t aux;
+            pixel_t pixel = ((aux = ((rom[i] >> (12 - cnt * 4)) & 0xf)) == 0xf)? 0 : aux;
+            imagen_set_pixel(fig, c, f, pixel);
+
+            if((cnt == 3) && ((rom[i] & 0xf) == 0xf)){
+                cnt = 0;
+                i++;
+                nueva_linea = true;
+                break;  //incrementa f y c = 0
+            }
+
+            cnt++;
+
+            if(cnt > 3){
+                cnt = 0;
+                i++;
+            }
+
+        }
+    }
+
+    return fig;
+}*/
+
+imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t ancho, size_t alto){
+
+    imagen_t *fig = imagen_generar(ancho + 1, alto + 1, 0);
+    if(fig == NULL) return NULL;
+
     bool nueva_linea = false;
 
     size_t f = 0, c = 0;
-    size_t i = pos, cnt = 0;
+    size_t i = pos - 1, cnt = 0;
+
 
     while(f < alto){
 
-        if(c == ancho) c = 0;
         //mientras sea nueva linea y sea 0xf, saltea
-/*
         if((nueva_linea) && (rom[i] == 0x0f0f)){
-            i++;
-            continue;
-        }
-  */
-        if((nueva_linea) && ((rom[i] & 0xf) == 0xf)){
             i++;
             continue;
         }
@@ -114,7 +155,7 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
         pixel_t pixel = ((aux = ((rom[i] >> (12 - cnt * 4)) & 0xf)) == 0xf)? 0 : aux;
         imagen_set_pixel(fig, c, f, pixel);
 
-        if(cnt >= 3 && (rom[i] & 0xf) == 0xf){
+        if(cnt == 2 && (rom[i] & 0xf) == 0xf){
             c = 0;
             cnt = 0;
             f++;
@@ -231,4 +272,23 @@ imagen_t *obtener_figura(uint16_t rom[CANTIDAD_VALORES_ROMS], size_t pos, size_t
 }
 */
 
+/*
+    //uint16_t aux;
 
+      pixel_t pixel;
+
+        if(cnt == 0){
+             pixel = (rom[i] >> 12) & 0xf;
+        }
+        else if(cnt == 1){
+             pixel = (rom[i] >> 8) & 0xf;
+        }
+        else if(cnt == 2){
+             pixel = (rom[i] >> 4) & 0xf;
+        }
+        else if(cnt == 3){
+             pixel = rom[i] & 0xf;
+        }
+
+        imagen_set_pixel(fig, c, f, pixel);
+*/

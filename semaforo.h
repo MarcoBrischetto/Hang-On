@@ -18,7 +18,7 @@ typedef struct {
     bool reflejar;
 }semaforo_t;
 
-mef_semaforo_t mef_semaforo(mef_semaforo_t estado, uint16_t *rom, imagen_t *cuadro, double tiempo, double x, double *ur, const pixel_t paleta[][16]);
-void dibujar_semaforo(uint16_t *rom, double x, double xs,double tiempo, imagen_t *cuadro, const pixel_t paleta[][16], double *ur, const semaforo_t tabla_semaforo[]);
+mef_semaforo_t mef_semaforo(mef_semaforo_t estado, uint16_t *rom, imagen_t *cuadro, double tiempo, double xm, double *ur, const pixel_t paleta[][16]);
+void dibujar_semaforo(uint16_t *rom, double xm, double xs,double tiempo, imagen_t *cuadro, const pixel_t paleta[][16], double *ur, const semaforo_t tabla_semaforo[]);
 
 #endif
