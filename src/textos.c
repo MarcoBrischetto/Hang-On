@@ -150,18 +150,7 @@ void generar_textos_variables(imagen_t *cuadro, imagen_t *teselas[], int velocid
 enum textos{
     TOP, TIME, SCORE, TOP_NUM ,STAGE, STAGE_NUM, KM, VELOCIDAD, PUNTAJE
 };
-/*
-typedef struct{
-    char *str;
-    size_t x;
-    size_t y;
-    size_t filas;
-    size_t columnas;
-    const void *mosaico;
-    const void *paleta;
 
-}texto_t;
-*/
 /*
     funcion: generar_textos_estaticos
     dibuja en la imagen cuadro los textos estaticos
